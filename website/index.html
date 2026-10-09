@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bomkeeper – The evidence vault for SBOMs</title>
+<meta name="description" content="Bomkeeper keeps your SBOMs tamper-proof, signed and retained for ten years – in your own storage or as a managed service. Supports the EU Cyber Resilience Act's retention requirements.">
+<meta name="theme-color" content="#0A0C1D">
+<link rel="canonical" href="https://bomkeeper.dev/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bomkeeper.dev/">
+<meta property="og:title" content="Bomkeeper – The evidence vault for SBOMs">
+<meta property="og:description" content="Your SBOMs don't outlive your pipeline. Bomkeeper keeps them: tamper-proof, signed and retained for ten years.">
+<meta name="twitter:card" content="summary">
+<link rel="preload" href="fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/instrument-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/instrument-sans-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/instrument-sans-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/instrument-sans-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
+:root{--accent:#6EE7B7}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:#0A0C1D}
+a{color:#6EE7B7}a:hover{color:#A7F3D0}
+a.navlink:hover,footer a:hover{color:#E9EAF2 !important}
+section[id]{scroll-margin-top:24px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:400}
+details[open] summary::after{content:"–"}
+input::placeholder{color:#6B7090}
+@media (max-width:960px){
+  .g3{grid-template-columns:1fr !important}
+  .h1{font-size:44px !important}
+  .h2{font-size:34px !important}
+  .navlink{display:none !important}
+}
+@media (max-width:720px){
+  .g2{grid-template-columns:1fr !important}
+  .gh{display:none !important}
+  nav[aria-label="Main"]{gap:12px !important}
+  .h1{font-size:36px !important}
+  .h2{font-size:30px !important}
+  header>div,main,footer>div,section[aria-label]>div,#why,#how,#open-source,#consulting,#faq,#dependency-track>div,#pricing>div,#waitlist>div{padding-left:20px !important;padding-right:20px !important}
+  #why{padding-top:72px !important}
+  #how,#open-source,#consulting,#faq,#dependency-track>div,#pricing>div,#waitlist>div{padding-top:72px !important;padding-bottom:72px !important}
+  main{padding-top:48px !important;padding-bottom:56px !important;gap:40px !important}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="page" style="min-height: 820px; background: #0A0C1D; color: #E9EAF2; font-family: 'Instrument Sans', sans-serif; box-sizing: border-box">
+  <header style="border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 18px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #E9EAF2">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="5"></rect><path d="M9 10h10M9 14h10M9 18h6"></path></svg>
+        <span style="font-weight: 700; font-size: 19px; letter-spacing: -0.01em">bomkeeper.dev</span>
+      </a>
+      <nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px">
+        <a class="navlink" href="#why" style="color: #A3A8C3; text-decoration: none">Why</a>
+        <a class="navlink" href="#how" style="color: #A3A8C3; text-decoration: none">How it works</a>
+        <a class="navlink" href="#open-source" style="color: #A3A8C3; text-decoration: none">Open source</a>
+        <a class="navlink" href="#pricing" style="color: #A3A8C3; text-decoration: none">Self-host or cloud</a>
+        <a class="navlink" href="#consulting" style="color: #A3A8C3; text-decoration: none">Consulting</a>
+        <a href="https://github.com/florianlenz96/Bomkeeper" class="gh" aria-label="Bomkeeper on GitHub" style="color: #A3A8C3; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 22v-3.9a3.4 3.4 0 0 0-1-2.6c3.1-.4 6.4-1.5 6.4-6.9a5.4 5.4 0 0 0-1.5-3.7 5 5 0 0 0-.1-3.7s-1.2-.4-3.9 1.4a13.4 13.4 0 0 0-7 0C6.2 1.8 5 2.2 5 2.2a5 5 0 0 0-.1 3.7 5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.3 6.5 6.4 6.9a3.4 3.4 0 0 0-1 2.6V22"></path></svg>
+        </a>
+        <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center">Join the waitlist</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 80px 32px 80px; display: flex; flex-wrap: wrap; align-items: center; gap: 64px">
+    <div style="flex: 1 1 500px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+      
+      <h1 class="h1" style="margin: 0; font-size: 60px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 700">Your SBOMs don't outlive your pipeline. <span style="color: var(--accent)">Bomkeeper keeps them.</span></h1>
+      <p style="margin: 0; font-size: 20px; line-height: 1.55; color: #A3A8C3; max-width: 560px">The evidence vault for software bills of materials: tamper-proof, signed and retained for ten years. In your own storage or as a managed service.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center">Join the waitlist</a>
+        <a href="https://github.com/florianlenz96/Bomkeeper" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 500; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 22v-3.9a3.4 3.4 0 0 0-1-2.6c3.1-.4 6.4-1.5 6.4-6.9a5.4 5.4 0 0 0-1.5-3.7 5 5 0 0 0-.1-3.7s-1.2-.4-3.9 1.4a13.4 13.4 0 0 0-7 0C6.2 1.8 5 2.2 5 2.2a5 5 0 0 0-.1 3.7 5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.3 6.5 6.4 6.9a3.4 3.4 0 0 0-1 2.6V22"></path></svg>
+          View on GitHub
+        </a>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #8A8FAD">Supports the CRA's retention requirements. Complements OWASP Dependency-Track — doesn't replace it.</p>
+    </div>
+
+    <div style="flex: 1 1 420px; min-width: 0">
+      <div style="background: #12152B; border: 1px solid #262A45; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Evidence bundle</span>
+            <span style="font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Controller X200 · 3.2.1</span>
+          </div>
+          <span style="border: 2px solid var(--accent); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 12px; letter-spacing: 0.12em; padding: 6px 10px; border-radius: 6px; transform: rotate(-4deg); white-space: nowrap">SEALED</span>
+        </div>
+        <div class="g2keep" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; font-size: 14px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Placed on market</span><span style="font-weight: 600; font-size: 16px">2027-12-11</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Retained until</span><span style="font-weight: 600; font-size: 16px">2037-12-11</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Format</span><span style="font-weight: 600; font-size: 16px">CycloneDX 1.6</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Storage</span><span style="font-weight: 600; font-size: 16px">WORM, locked</span></div>
+        </div>
+        <div style="background: #0A0C1D; border: 1px solid #1E2240; border-radius: 8px; padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8; color: #CDD0E0; overflow-x: auto">sha256 9f2c…e41a<br>signature valid · RFC 3161 timestamp</div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--accent); font-weight: 600">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          Verifiable offline — even without Bomkeeper
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section aria-label="Designed to fit your stack" style="border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240; background: #0E1126">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px">
+      <span style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8FAD">Designed to fit your stack</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #CDD0E0">
+        <span>CycloneDX</span>
+        <span>SPDX</span>
+        <span>Dependency-Track</span>
+        <span>GitHub Actions</span>
+        <span>Azure DevOps</span>
+        <span>GitLab CI</span>
+        <span>Amazon S3</span>
+        <span>Azure Blob Storage</span>
+        <span>MinIO</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="why" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px 0; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">The problem</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">CI pipelines are built to forget.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Generating SBOMs is solved. Keeping them isn't. Most teams create them as build artifacts — in a system designed to throw artifacts away.</p>
+    </div>
+
+    <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">Artifacts expire</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">CI systems delete build artifacts after days or weeks. The SBOM of last year's release is already gone.</p>
+      </div>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M10 13l4 4M14 13l-4 4"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">No proof</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">A JSON file in a bucket proves nothing. Nobody can show it is unchanged and belongs to exactly what you shipped.</p>
+      </div>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4M11 8v3M11 14h.01"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">Slow answers</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">A customer, auditor or authority asks about a release from three years ago. The answer takes days — if it exists at all.</p>
+      </div>
+    </div>
+
+    <div style="border: 1px solid #262A45; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+      <span style="font-size: 15px; font-weight: 600">What the Cyber Resilience Act asks of manufacturers</span>
+      <ol class="g3" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #343957; padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E9EAF2">Sep 11, 2026</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Reporting duties for actively exploited vulnerabilities, starting with a 24-hour early warning.</span>
+        </li>
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid var(--accent); padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--accent)">Dec 11, 2027</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Full application: a machine-readable SBOM is part of every product's technical documentation.</span>
+        </li>
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #343957; padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E9EAF2">+10 years</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Technical documentation must be kept for ten years after placing on the market, or the support period if longer.</span>
+        </li>
+      </ol>
+      <span style="font-size: 13px; color: #8A8FAD">Regulation (EU) 2024/2847. This is a summary, not legal advice.</span>
+    </div>
+  </section>
+
+  <section id="how" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">How it works</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">One step in CI. Ten years of evidence.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Keep generating SBOMs with Syft, Trivy or cdxgen. Add Bomkeeper right after, and every release is archived the moment it ships.</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+      <div style="flex: 1 1 480px; min-width: 0; background: #12152B; border: 1px solid #262A45; border-radius: 14px; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #262A45">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8A8FAD">.github/workflows/release.yml</span>
+        </div>
+        <pre style="margin: 0; padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8; color: #CDD0E0; white-space: pre-wrap; overflow-x: auto"><span style="color: #8A8FAD">$</span> bomkeeper push sbom.cdx.json \
+    --product controller-x200 --release 3.2.1
+<span style="color: var(--accent)">✓</span> SHA-256 computed over original bytes
+<span style="color: var(--accent)">✓</span> Signed and timestamped (RFC 3161)
+<span style="color: var(--accent)">✓</span> Locked in WORM storage until 2037-12-11
+<span style="color: #8A8FAD">→ verify anytime, offline: bomkeeper verify</span></pre>
+      </div>
+
+      <ol style="flex: 1 1 440px; min-width: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">01</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Push</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">One step after your SBOM generator. Bomkeeper takes the file byte for byte, with product and release attached.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">02</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Seal</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">A SHA-256 hash over the original bytes, a signature and a trusted RFC 3161 timestamp.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">03</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Retain</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Locked in WORM storage — S3 Object Lock or Azure immutable blobs — until the retention date. Nobody can change or delete it.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">04</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Verify</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Anyone can check a bundle offline with the open-source verifier. In ten years, even without us.</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">10 yrs</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">minimum retention for SBOMs under the CRA</span>
+      </div>
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">0</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">delete endpoints. Not even for admins.</span>
+      </div>
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">1</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">step in your pipeline</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="dependency-track" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Bomkeeper + Dependency-Track</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Dependency-Track for today. Bomkeeper for the record.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Dependency-Track analyses what you run now and retires old versions to stay fast. Bomkeeper keeps every version you ever shipped — and feeds Dependency-Track automatically.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px">
+        <div style="flex: 1 1 340px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Analysis</span>
+            <span style="font-size: 22px; font-weight: 700">OWASP Dependency-Track</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Continuous vulnerability and policy monitoring</li>
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Focused on the current, active versions</li>
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Retention cleans up inactive versions</li>
+          </ul>
+        </div>
+
+        <div style="flex: 0 1 180px; min-width: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center">
+          <svg width="48" height="24" viewBox="0 0 48 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M2 8h40M36 2l6 6-6 6M46 16H6M12 10l-6 6 6 6"></path></svg>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; color: #A3A8C3">forward on push<br>replay any release</span>
+        </div>
+
+        <div style="flex: 1 1 340px; min-width: 0; border: 1px solid var(--accent); background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent)">Evidence</span>
+            <span style="font-size: 22px; font-weight: 700">Bomkeeper</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Every shipped release, for ten years and more</li>
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Original bytes, sealed and locked</li>
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Rebuild Dependency-Track from the archive anytime</li>
+          </ul>
+        </div>
+      </div>
+      <span style="font-size: 13px; color: #8A8FAD">Bomkeeper is an independent project and not affiliated with or endorsed by the OWASP Foundation.</span>
+    </div>
+  </section>
+
+  <section id="open-source" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Open core</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Open where trust matters.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Everything you need to read and verify your evidence without us is open source. The comfort on top is what you pay for.</p>
+    </div>
+
+    <div class="g2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="font-size: 22px; font-weight: 700">Open source</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 10px">Apache-2.0</span>
+        </div>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>Evidence bundle format and specification</li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span><span>CLI: <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">push</code>, <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">get</code>, <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">verify</code></span></li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>Storage adapters for S3 Object Lock and Azure immutable blobs</li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>GitHub Action for your release workflow</li>
+        </ul>
+      </div>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="font-size: 22px; font-weight: 700">Bomkeeper Server</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3A8C3; border: 1px solid #343957; border-radius: 999px; padding: 4px 10px">Commercial</span>
+        </div>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Products, versions and releases with market dates</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Search one component across every shipped release</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Dependency-Track forwarding and replay</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Time-limited audit shares with a tamper-proof access log</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; border: 1px dashed #343957; border-radius: 14px; padding: 24px 28px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>
+      <p style="margin: 0; flex: 1 1 400px; font-size: 16px; line-height: 1.55; color: #CDD0E0"><strong style="color: #E9EAF2">Exit guarantee:</strong> if Bomkeeper ever disappears, your evidence doesn't. Every bundle stays readable and verifiable with the open-source tools.</p>
+    </div>
+  </section>
+
+  <section id="pricing" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Self-host or cloud</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Your storage or ours. Your evidence either way.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Run Bomkeeper in your own cloud account, or let us operate it — with the bundles in your bucket or in EU data centres.</p>
+      </div>
+
+      <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+        <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 20px; font-weight: 700">Open source</span>
+            <span style="font-size: 15px; color: #A3A8C3">CLI and your own locked bucket</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em">Free</span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Archive and verify from CI</li>
+            <li>S3 or Azure WORM storage</li>
+            <li>Community support on GitHub</li>
+          </ul>
+          <a href="https://github.com/florianlenz96/Bomkeeper" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Star on GitHub</a>
+        </div>
+        <div style="border: 2px solid var(--accent); background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap">
+              <span style="font-size: 20px; font-weight: 700">Cloud</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0A0C1D; background: var(--accent); border-radius: 999px; padding: 3px 10px">Design partners wanted</span>
+            </div>
+            <span style="font-size: 15px; color: #A3A8C3">We run it, you ship</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em"><span style="font-size: 16px; font-weight: 500; color: #A3A8C3"> / month</span></span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Everything in Bomkeeper Server</li>
+            <li>Bring your own storage or EU-hosted</li>
+            <li>SSO, roles and audit shares</li>
+            <li>Full export, anytime</li>
+          </ul>
+          <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Join the waitlist</a>
+        </div>
+        <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 20px; font-weight: 700">Self-hosted server</span>
+            <span style="font-size: 15px; color: #A3A8C3">In your Azure, AWS or Kubernetes</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em">Annual license</span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Everything in Bomkeeper Server</li>
+            <li>Deployment templates for your cloud</li>
+            <li>Updates and support with SLA</li>
+          </ul>
+          <a href="#consulting" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Talk to us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="consulting" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start">
+    <div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Consulting</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">A vault is one part. Get help with the rest of the CRA.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Archiving SBOMs is only one obligation. Vulnerability handling, reporting, cloud and pipeline security belong to the same job.</p>
+      <div style="display: flex; align-items: center; gap: 16px; padding-top: 8px">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #1E2240; border: 1px solid #343957; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: var(--accent); flex-shrink: 0">FL</div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 17px; font-weight: 600">Florian Lenz</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #A3A8C3">Creator of Bomkeeper · Microsoft Azure MVP · independent cloud &amp; security consultant from Cologne</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 460px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Fixed-scope package</span>
+        <span style="font-size: 26px; font-weight: 700">CRA evidence in 5 days</span>
+      </div>
+      <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">1</span>Inventory of your products, releases and build pipelines</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">2</span>Bomkeeper set up in your own cloud account</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">3</span>SBOM generation and archiving wired into CI</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">4</span>Report with gaps, risks and next steps</li>
+      </ol>
+      <a href="mailto:florian.lenz@neocentric.de?subject=Bomkeeper%20intro%20call" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Book a free intro call</a>
+      <span style="font-size: 13px; color: #8A8FAD">Technical and process support. It doesn't replace legal advice.</span>
+    </div>
+  </section>
+
+  <section id="waitlist" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start">
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Early access</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Be ready before December 2027.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">The open-source core is planned for early 2027, a cloud beta with design partners for spring 2027. Join the list and help shape what gets built first.</p>
+      </div>
+
+      <form action="/api/waitlist" method="post" style="flex: 1 1 460px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div aria-hidden="true" style="position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden">
+          <label for="wl-website">Leave this field empty</label>
+          <input id="wl-website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-email" style="font-size: 14px; font-weight: 600">Work email</label>
+          <input id="wl-email" type="email" name="email" required="" maxlength="254" autocomplete="email" placeholder="you@company.com" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-company" style="font-size: 14px; font-weight: 600">Company <span style="font-weight: 400; color: #8A8FAD">(optional)</span></label>
+          <input id="wl-company" type="text" name="company" maxlength="200" autocomplete="organization" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-type" style="font-size: 14px; font-weight: 600">What do you ship?</label>
+          <select id="wl-type" name="type" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+            <option>Devices or embedded software</option>
+            <option>Industrial or machine software</option>
+            <option>On-premises software</option>
+            <option>SaaS</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; cursor: pointer">
+          <input type="checkbox" name="design_partner" style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0">
+          I'd like to be a design partner and give feedback on early versions.
+        </label>
+        <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; cursor: pointer">
+          <input type="checkbox" name="consent" value="yes" required style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0">
+          I agree to receive Bomkeeper early-access and product updates by email. I can unsubscribe at any time.
+        </label>
+        <button type="submit" style="background: var(--accent); color: #0A0C1D; border: none; font-family: inherit; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; cursor: pointer">Join the waitlist</button>
+        <span style="font-size: 13px; line-height: 1.5; color: #8A8FAD">Check your inbox and confirm your signup within 48 hours. We only use your details for the Bomkeeper waitlist. See our <a href="https://florian-lenz.io/datenschutz" style="color: #A3A8C3">privacy policy</a>.</span>
+      </form>
+    </div>
+  </section>
+
+  <section id="faq" style="max-width: 880px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 40px">
+    <h2 class="h2" style="margin: 0; font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; text-align: center">Questions</h2>
+    <div style="display: flex; flex-direction: column">
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Does Bomkeeper make us CRA compliant?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">No tool can. Bomkeeper supports the CRA's retention requirements for SBOMs and technical documentation. Compliance also needs secure development, vulnerability handling and reporting processes.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">We already use Dependency-Track. Why add Bomkeeper?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">Dependency-Track is built for analysing the current state. Bomkeeper keeps the unchanged originals of every shipped release for ten years, proves they are untouched, and can replay them into Dependency-Track.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">What happens if Bomkeeper shuts down?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">The bundle format and the verifier are open source. Your evidence stays readable and verifiable without us — especially if it lives in your own storage.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Where is our data stored?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">In your own S3 or Azure account with object lock enabled, or in EU data centres when you use the cloud service.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Which SBOM formats are supported?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">CycloneDX and SPDX. Bomkeeper stores the file byte for byte, exactly as your generator produced it.</p>
+      </details>
+    </div>
+  </section>
+
+  <footer style="border-top: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 56px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px">
+      <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 14px">
+        <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #E9EAF2">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="5"></rect><path d="M9 10h10M9 14h10M9 18h6"></path></svg>
+          <span style="font-weight: 700; font-size: 17px">bomkeeper</span>
+        </a>
+        <span style="font-size: 14px; line-height: 1.6; color: #8A8FAD; max-width: 300px">The evidence vault for software bills of materials.</span>
+      </div>
+      <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 56px; font-size: 14px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Product</span>
+          <a href="#how" style="color: #A3A8C3; text-decoration: none">How it works</a>
+          <a href="#open-source" style="color: #A3A8C3; text-decoration: none">Open source</a>
+          <a href="#pricing" style="color: #A3A8C3; text-decoration: none">Self-host or cloud</a>
+          <a href="https://github.com/florianlenz96/Bomkeeper" style="color: #A3A8C3; text-decoration: none">GitHub</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Company</span>
+          <a href="#consulting" style="color: #A3A8C3; text-decoration: none">Consulting</a>
+          <a href="mailto:florian.lenz@neocentric.de" style="color: #A3A8C3; text-decoration: none">Contact</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Legal</span>
+          <a href="https://florian-lenz.io/impressum" style="color: #A3A8C3; text-decoration: none">Imprint</a>
+          <a href="https://florian-lenz.io/datenschutz" style="color: #A3A8C3; text-decoration: none">Privacy</a>
+        </div>
+      </nav>
+    </div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px 32px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: #8A8FAD; border-top: 1px solid #1E2240">
+      <span>© 2026 Florian Lenz · bomkeeper.dev</span>
+      <span>Not affiliated with OWASP. CycloneDX and Dependency-Track are OWASP projects.</span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

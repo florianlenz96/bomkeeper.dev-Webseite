@@ -1,0 +1,32 @@
+.DS_Store
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Node dependencies
+node_modules/
+**/node_modules/
+api/local.settings.json
+*.jsonl
+
+# Terraform local working dirs and state
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform variable files (keep examples)
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+!*.tfvars.example

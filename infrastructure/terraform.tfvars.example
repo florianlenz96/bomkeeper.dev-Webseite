@@ -1,0 +1,34 @@
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+location            = "westeurope"
+resource_group_name = "rg-bomkeeper-web"
+static_web_app_name = "bomkeeper-web"
+static_web_app_default_hostname = "kind-beach-02c64fb03.3.azurestaticapps.net"
+
+# Must be globally unique in Azure and 3-24 lowercase alphanumeric.
+storage_account_name = "bomkeeperwaitlistsa"
+
+communication_service_name       = "bomkeeper-acs"
+email_communication_service_name = "bomkeeper-email"
+communication_data_location      = "Europe"
+
+email_domain_name         = "bomkeeper.dev"
+email_sender_username     = "waitlist"
+email_sender_display_name = "Bomkeeper"
+
+# Stage gate: keep false for stage 1, set true only after DNS verification is complete.
+email_domain_verified = false
+
+waitlist_hourly_email_limit = 20
+waitlist_base_url           = "https://bomkeeper.dev"
+
+manage_static_web_app_custom_domains = true
+static_web_app_custom_domains = {
+  "bomkeeper.dev"     = "dns-txt-token"
+  "www.bomkeeper.dev" = "cname-delegation"
+}
+
+tags = {
+  project = "bomkeeper"
+  env     = "prod"
+}

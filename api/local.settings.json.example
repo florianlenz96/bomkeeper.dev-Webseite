@@ -1,0 +1,17 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "WAITLIST_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
+    "WAITLIST_TABLE": "Waitlist",
+    "WAITLIST_LIMITS_TABLE": "WaitlistLimits",
+    "WAITLIST_EMAIL_CONNECTION_STRING": "",
+    "WAITLIST_EMAIL_ENABLED": "false",
+    "WAITLIST_SENDER": "waitlist@bomkeeper.dev",
+    "WAITLIST_BASE_URL": "http://localhost:4280",
+    "WAITLIST_ALLOWED_ORIGINS": "http://localhost:4280",
+    "WAITLIST_TOKEN_SECRET": "",
+    "WAITLIST_HOURLY_EMAIL_LIMIT": "20"
+  }
+}
