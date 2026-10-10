@@ -8,6 +8,16 @@ output "static_web_app_id" {
   value       = azurerm_static_web_app.site.id
 }
 
+output "application_insights_id" {
+  description = "Application Insights resource ID for managed API diagnostics."
+  value       = azurerm_application_insights.api.id
+}
+
+output "log_analytics_workspace_id" {
+  description = "Log Analytics workspace resource ID for API telemetry."
+  value       = azurerm_log_analytics_workspace.api.id
+}
+
 output "static_web_app_name" {
   description = "Static Web App name used by the publishing workflow."
   value       = azurerm_static_web_app.site.name

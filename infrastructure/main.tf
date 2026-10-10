@@ -23,6 +23,24 @@ resource "random_password" "waitlist_token_secret" {
   special = false
 }
 
+resource "azurerm_log_analytics_workspace" "api" {
+  name                = "${var.static_web_app_name}-logs"
+  resource_group_name = azurerm_resource_group.web.name
+  location            = azurerm_resource_group.web.location
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  tags                = var.tags
+}
+
+resource "azurerm_application_insights" "api" {
+  name                = "${var.static_web_app_name}-insights"
+  resource_group_name = azurerm_resource_group.web.name
+  location            = azurerm_resource_group.web.location
+  application_type    = "web"
+  workspace_id        = azurerm_log_analytics_workspace.api.id
+  tags                = var.tags
+}
+
 resource "azurerm_storage_account" "waitlist" {
   name                            = var.storage_account_name
   resource_group_name             = azurerm_resource_group.web.name
