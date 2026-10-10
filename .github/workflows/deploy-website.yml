@@ -1,16 +1,18 @@
-name: Deploy website
+name: Provision and deploy website
 
 on:
   push:
     branches: [main]
-    paths: ["website/**", "api/**", ".github/workflows/deploy-website.yml"]
+    paths: ["website/**", "api/**", "infrastructure/**", ".github/workflows/deploy-website.yml"]
+  pull_request:
+    paths: ["website/**", "api/**", "infrastructure/**", ".github/workflows/deploy-website.yml"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,11 +24,125 @@ jobs:
       - name: Install and test waitlist API
         working-directory: api
         run: npm ci && npm test
-      - name: Deploy to Azure Static Web Apps
+      - uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: "1.11.4"
+      - name: Validate infrastructure
+        working-directory: infrastructure
+        run: |
+          terraform fmt -check
+          terraform init -backend=false -input=false -lockfile=readonly
+          terraform validate
+
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: website-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      ARM_USE_OIDC: "true"
+      ARM_USE_AZUREAD: "true"
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - uses: azure/login@v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: "1.11.4"
+          terraform_wrapper: false
+      - name: Initialize secured infrastructure state
+        working-directory: infrastructure
+        env:
+          STATE_RESOURCE_GROUP: ${{ vars.TF_STATE_RESOURCE_GROUP }}
+          STATE_STORAGE_ACCOUNT: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
+          STATE_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
+          STATE_KEY: ${{ vars.TF_STATE_KEY }}
+          TFVARS_JSON: ${{ secrets.TF_VARS_JSON }}
+        run: |
+          set -euo pipefail
+          : "${ARM_CLIENT_ID:?Set AZURE_CLIENT_ID}"
+          : "${ARM_TENANT_ID:?Set AZURE_TENANT_ID}"
+          : "${ARM_SUBSCRIPTION_ID:?Set AZURE_SUBSCRIPTION_ID}"
+          : "${STATE_RESOURCE_GROUP:?Set TF_STATE_RESOURCE_GROUP}"
+          : "${STATE_STORAGE_ACCOUNT:?Set TF_STATE_STORAGE_ACCOUNT}"
+          : "${STATE_CONTAINER:?Set TF_STATE_CONTAINER}"
+          : "${STATE_KEY:?Set TF_STATE_KEY}"
+          : "${TFVARS_JSON:?Set TF_VARS_JSON}"
+          umask 077
+          printf '%s' "$TFVARS_JSON" > deployment.auto.tfvars.json
+          terraform init -input=false -lockfile=readonly \
+            -backend-config="resource_group_name=$STATE_RESOURCE_GROUP" \
+            -backend-config="storage_account_name=$STATE_STORAGE_ACCOUNT" \
+            -backend-config="container_name=$STATE_CONTAINER" \
+            -backend-config="key=$STATE_KEY"
+      - name: Provision infrastructure
+        working-directory: infrastructure
+        run: |
+          terraform plan -out="$RUNNER_TEMP/deployment.tfplan"
+          terraform apply -input=false "$RUNNER_TEMP/deployment.tfplan"
+      - name: Get deployment target and token from provisioned infrastructure
+        id: target
+        working-directory: infrastructure
+        run: |
+          set -euo pipefail
+          site=$(terraform output -raw static_web_app_name)
+          group=$(terraform output -raw resource_group_name)
+          hostname=$(terraform output -raw static_web_app_default_host_name)
+          token=$(az staticwebapp secrets list --name "$site" --resource-group "$group" --query properties.apiKey -o tsv)
+          test -n "$token"
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+          echo "hostname=$hostname" >> "$GITHUB_OUTPUT"
+      - name: Install waitlist API
+        working-directory: api
+        run: npm ci
+      - name: Publish website and managed API
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ steps.target.outputs.token }}
           action: upload
           app_location: website
           api_location: api
           skip_app_build: true
+          production_branch: main
+      - name: Smoke test published website and API
+        env:
+          HOSTNAME: ${{ steps.target.outputs.hostname }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            if curl --fail --silent --show-error "https://$HOSTNAME/" -o "$RUNNER_TEMP/site.html" &&
+               grep -qi 'Bomkeeper' "$RUNNER_TEMP/site.html" &&
+               status=$(curl --silent --show-error -o "$RUNNER_TEMP/api.html" -w '%{http_code}' \
+                 "https://$HOSTNAME/api/waitlist/confirm") &&
+               [ "$status" = "400" ] &&
+               grep -q 'This link is invalid or expired' "$RUNNER_TEMP/api.html"; then
+              echo "Website and configured managed API are reachable."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Website/API smoke test failed after deployment."
+          exit 1
+      - name: Remove local deployment secrets
+        if: always()
+        run: rm -f infrastructure/deployment.auto.tfvars.json "$RUNNER_TEMP/deployment.tfplan"

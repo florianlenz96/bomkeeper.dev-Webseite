@@ -1,9 +1,8 @@
 subscription_id = "00000000-0000-0000-0000-000000000000"
 
 location            = "westeurope"
-resource_group_name = "rg-bomkeeper-web"
+resource_group_name = "bomkeeper-web"
 static_web_app_name = "bomkeeper-web"
-static_web_app_default_hostname = "kind-beach-02c64fb03.3.azurestaticapps.net"
 
 # Must be globally unique in Azure and 3-24 lowercase alphanumeric.
 storage_account_name = "bomkeeperwaitlistsa"
@@ -22,7 +21,8 @@ email_domain_verified = false
 waitlist_hourly_email_limit = 20
 waitlist_base_url           = "https://bomkeeper.dev"
 
-manage_static_web_app_custom_domains = true
+# Enable only after the new site's DNS validation records are in place.
+manage_static_web_app_custom_domains = false
 static_web_app_custom_domains = {
   "bomkeeper.dev"     = "dns-txt-token"
   "www.bomkeeper.dev" = "cname-delegation"

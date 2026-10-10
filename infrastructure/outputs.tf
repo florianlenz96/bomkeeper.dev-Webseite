@@ -8,6 +8,16 @@ output "static_web_app_id" {
   value       = azurerm_static_web_app.site.id
 }
 
+output "static_web_app_name" {
+  description = "Static Web App name used by the publishing workflow."
+  value       = azurerm_static_web_app.site.name
+}
+
+output "resource_group_name" {
+  description = "Resource group used by the publishing workflow."
+  value       = azurerm_resource_group.web.name
+}
+
 output "static_web_app_default_host_name" {
   description = "Static Web App default hostname."
   value       = azurerm_static_web_app.site.default_host_name

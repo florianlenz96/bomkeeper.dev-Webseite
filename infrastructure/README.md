@@ -2,9 +2,10 @@
 
 This folder manages infrastructure only:
 
-- Existing Azure Resource Group `rg-bomkeeper-web` (West Europe)
-- Existing Azure Static Web App `bomkeeper-web` (Free tier)
-- Existing SWA custom domains:
+- Existing Azure Resource Group `bomkeeper-web`, automatically imported
+- Existing manually created state Storage Account in `bomkeeper-web`, not managed by this configuration
+- Azure Static Web App `bomkeeper-web` (Free tier), new or imported
+- Optional SWA custom domains, enabled after DNS is ready:
   - `bomkeeper.dev` (apex)
   - `www.bomkeeper.dev`
 - New waitlist storage:
@@ -17,7 +18,8 @@ This folder manages infrastructure only:
   - Customer-managed email domain `bomkeeper.dev`
   - Sender username `waitlist` (display name `Bomkeeper`) gated by verification
 
-No deployment of website/API code is done by Terraform.
+Terraform provisions resources. The GitHub workflow then publishes website/API
+code to that exact Static Web App and checks the public website and API.
 
 ---
 
@@ -37,13 +39,19 @@ The Static Web App app settings are managed with:
 - `WAITLIST_ALLOWED_ORIGINS` = `https://bomkeeper.dev,https://www.bomkeeper.dev,https://${SWA.default_host_name}`
 
 `WAITLIST_ALLOWED_ORIGINS` supports both custom domains and SWA deployment URL for POST requests from standard HTML forms.
-The SWA hostname part is configured via `static_web_app_default_hostname` (default `kind-beach-02c64fb03.3.azurestaticapps.net`).
+Origins include `waitlist_base_url`, the configured custom domains and the actual
+generated SWA hostname. App settings are applied with an AzAPI PUT action after
+SWA creation to avoid a Terraform dependency cycle; AzureRM ignores those settings.
+The settings endpoint has no GET operation. Reapply the action explicitly with
+`terraform apply -replace=azapi_resource_action.site_settings` if settings are
+changed outside Terraform; the action does not detect remote settings drift.
+Remove the obsolete `static_web_app_default_hostname` input from old variable files.
 
 ---
 
 ## Prerequisites
 
-- Terraform `>= 1.5` (validated with 1.11.4)
+- Terraform `>= 1.6` (import ID expressions; validated with 1.11.4)
 - Azure CLI logged in
 - Permission to manage:
   - `Microsoft.Web/staticSites`
@@ -71,15 +79,16 @@ This configuration is designed to adopt existing critical resources and protect 
 1) Create your variables file:
 
 ```bash
-cd /Users/florianlenz/Downloads/bomkeeper-website/infrastructure
+cd infrastructure
 cp terraform.tfvars.example terraform.tfvars
+# Replace the placeholder subscription_id in terraform.tfvars with the target subscription ID.
 ```
 
 2) Set shell vars for import commands:
 
 ```bash
 export SUBSCRIPTION_ID="35927a95-12bd-4128-8346-ace0cc0491c6"
-export RESOURCE_GROUP_NAME="rg-bomkeeper-web"
+export RESOURCE_GROUP_NAME="bomkeeper-web"
 export STATIC_WEB_APP_NAME="bomkeeper-web"
 export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
 ```
@@ -87,19 +96,20 @@ export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
 3) Initialize Terraform:
 
 ```bash
-terraform init -backend=false
+terraform init
 ```
 
 4) Import existing resources:
 
 ```bash
-terraform import azurerm_resource_group.web "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}"
+# The resource group is imported automatically by the import block on apply.
+# Set manage_static_web_app_custom_domains = true in terraform.tfvars before importing existing domain bindings.
 terraform import azurerm_static_web_app.site "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}"
 terraform import 'azurerm_static_web_app_custom_domain.domains["bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/bomkeeper.dev"
 terraform import 'azurerm_static_web_app_custom_domain.domains["www.bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/www.bomkeeper.dev"
 ```
 
-> Existing values you provided:
+> Historical site values (not the newly created `bomkeeper-web` resource group):
 > - SWA ID: `/subscriptions/35927a95-12bd-4128-8346-ace0cc0491c6/resourceGroups/rg-bomkeeper-web/providers/Microsoft.Web/staticSites/bomkeeper-web`
 > - External DNS currently expected: apex A `20.101.2.157`, `www` CNAME `kind-beach-02c64fb03.3.azurestaticapps.net`
 
@@ -107,7 +117,16 @@ terraform import 'azurerm_static_web_app_custom_domain.domains["www.bomkeeper.de
 
 ## Fresh deployment path (optional)
 
-If you deploy into a clean subscription/resource names, you can skip import and apply directly.
+The resource group must already exist. The import block adopts `bomkeeper-web`
+on the first apply; subsequent applies do not re-import it. Set `location` to
+the existing group's Azure location to avoid a replacement plan. `prevent_destroy`
+protects the group, but is not a substitute for an Azure delete lock on the group
+and state account. Review any tag changes in the first plan.
+
+Use unique resource names and a globally available waitlist storage account name. Set
+the real subscription ID; the all-zero value in the example is a placeholder.
+Skip manual imports for genuinely new website resources, but never use a new empty state to
+manage resources already tracked elsewhere.
 
 If DNS is not ready yet, set:
 
@@ -116,6 +135,73 @@ manage_static_web_app_custom_domains = false
 ```
 
 Then enable it later and apply once DNS is in place.
+This is now the default. Obtain the new hostname from
+`terraform output -raw static_web_app_default_host_name`; do not reuse the old
+site's hostname or IP. Use Azure's custom-domain wizard to obtain the apex
+validation TXT token, publish it and the website A/ALIAS/CNAME records, then
+enable Terraform domain management. Import any bindings created by the wizard.
+
+### GitHub Actions bootstrap (once)
+
+The workflow uses OIDC, not a long-lived Azure credential or a manually copied
+SWA token. An Azure administrator must first:
+
+1. Use the existing manually created Storage Account in `bomkeeper-web` for
+   Terraform state. Create a private blob container there if missing. Ensure
+   HTTPS only, TLS 1.2, no anonymous blob access, blob versioning and soft delete.
+   Azure Blob provides state locking. The backend account/container stay outside
+   Terraform management even though website resources share their resource group.
+   Never use this account's name as `storage_account_name`: that input creates
+   a separate waitlist Table Storage account in the same group.
+2. Create an Entra application/service principal or user-assigned identity.
+   Add a federated credential with issuer `https://token.actions.githubusercontent.com`,
+   subject `repo:florianlenz96/bomkeeper.dev-Webseite:environment:production`
+   and audience `api://AzureADTokenExchange`.
+3. Grant the identity Contributor on the existing `bomkeeper-web` resource group;
+   subscription-wide Contributor is not needed. Grant Storage Blob Data Contributor
+   on the state storage account for backend access. Do not grant Owner.
+   Register Microsoft.Web, Microsoft.Storage and Microsoft.Communication.
+4. Create the GitHub `production` environment, restrict it to `main`, and
+   configure required reviewers where supported. Configure these environment
+   variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
+   `TF_STATE_RESOURCE_GROUP`, `TF_STATE_STORAGE_ACCOUNT`, `TF_STATE_CONTAINER`,
+   `TF_STATE_KEY` (for example `website-production.tfstate`).
+   Set `TF_STATE_RESOURCE_GROUP=bomkeeper-web` and `TF_STATE_STORAGE_ACCOUNT`
+   to the name of your manually created account.
+5. Add environment secret `TF_VARS_JSON`: a JSON object with inputs matching
+   `terraform.tfvars.example`. Begin with both domain management and email
+   verification disabled. Do not include Azure credentials.
+   Set `resource_group_name` to `bomkeeper-web` and `location` to the group's
+   actual location. Old secrets containing `rg-bomkeeper-web` must be updated.
+   If Terraform already manages a different group with deployed resources, stop:
+   do not rename that group in state or apply a replacement plan. Existing
+   resources need a separately reviewed migration.
+
+For local operations, log in with Azure CLI, set `ARM_SUBSCRIPTION_ID` and
+`ARM_USE_AZUREAD=true`, then initialize the same backend:
+
+```bash
+terraform init \
+  -backend-config="resource_group_name=$TF_STATE_RESOURCE_GROUP" \
+  -backend-config="storage_account_name=$TF_STATE_STORAGE_ACCOUNT" \
+  -backend-config="container_name=$TF_STATE_CONTAINER" \
+  -backend-config="key=$TF_STATE_KEY"
+```
+
+If you have local state already, use `terraform init -migrate-state` with those
+same arguments and preserve a secured backup. `init -backend=false` is only
+for offline validation, not provisioning.
+
+Push changes to `main` or manually run **Provision and deploy website** there.
+It tests the API, validates Terraform, applies a saved plan using locked remote
+state, retrieves and masks the new site's deployment token, and publishes both
+website and managed Node 22 API. Deployment jobs are serialized; PRs only
+validate and receive no Azure credentials. Never publish state/plans as artifacts.
+If publishing fails after apply, rerun the workflow against the same state.
+
+Stage 1 publishes a working website/API but deliberately returns 503 for signups.
+Complete the DNS/email stages below, update `TF_VARS_JSON` with the verified
+flags, and run the workflow again before launching the waitlist.
 
 ---
 
@@ -139,7 +225,7 @@ terraform plan -out stage1.tfplan
 
 Review plan output. It should:
 
-- keep SWA/RG/custom domains managed
+- keep SWA/RG managed and custom domains disabled until DNS is ready
 - create storage/tables
 - create ACS + Email Communication Service
 - create Email Communication Service Domain (`CustomerManaged`)
@@ -169,10 +255,10 @@ Each output includes record `name`, `type`, `value`, `ttl`.
 After DNS records are added and propagated:
 
 ```bash
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type Domain
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type SPF
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM2
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type Domain
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type SPF
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM2
 ```
 
 Install the CLI extension first if missing:
@@ -185,7 +271,7 @@ second SPF record. DKIM records use the hostnames and values from Terraform.
 Check status:
 
 ```bash
-az communication email domain show --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --output json
+az communication email domain show --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --output json
 ```
 
 ### Stage 2: Enable email resources and email sending flag
@@ -222,7 +308,9 @@ The SWA settings update depends on successful sender provisioning.
 
 ## Deployment of website/API code (separate from Terraform)
 
-Infrastructure is managed here. Application deployment remains separate via your existing GitHub workflow (`Azure/static-web-apps-deploy`) or manual CLI deploy.
+The GitHub workflow provisions infrastructure before publishing. No
+`AZURE_STATIC_WEB_APPS_API_TOKEN` repository secret is needed; its token is read
+from the provisioned target. Manual publishing is also supported after apply.
 
 Manual deploy command:
 
@@ -230,7 +318,7 @@ Manual deploy command:
 cd ..
 npm --prefix api ci
 npm --prefix api test
-npx --yes @azure/static-web-apps-cli@2.0.10 deploy ./website --api-location ./api --api-language node --api-version 22 --env production --app-name bomkeeper-web --resource-group rg-bomkeeper-web
+npx --yes @azure/static-web-apps-cli@2.0.10 deploy ./website --api-location ./api --api-language node --api-version 22 --env production --app-name bomkeeper-web --resource-group bomkeeper-web
 ```
 
 You can also read these outputs:
@@ -246,7 +334,7 @@ Use before any apply:
 
 ```bash
 terraform fmt -recursive
-terraform init -backend=false
+terraform init
 terraform validate
 terraform plan
 ```
@@ -257,9 +345,8 @@ terraform plan
 
 Terraform state and saved plans contain storage/ACS keys and the token secret,
 even when outputs are marked sensitive. They must never be committed. This
-project uses local state by default; protect it and its backups. Before using
-Terraform from CI or another machine, migrate to a secured Azure Blob remote
-backend with restricted access, state locking and recovery enabled.
+project uses an Azure Blob remote backend with configuration supplied at init;
+bootstrap it and migrate existing local state before the first CI apply.
 
 Storage and email incur usage-based costs. Start with the email limit of 20
 per UTC hour, set an Azure budget, and monitor errors and ACS delivery status.
@@ -268,4 +355,12 @@ An accepted send operation does not guarantee inbox delivery.
 Before launching the form, update the linked privacy policy and schedule the
 daily cleanup command documented in [`../api/README.md`](../api/README.md).
 No Terraform apply, resource import or production deployment has been performed
-as part of creating this project.
+in this sandbox: Azure credentials and DNS-provider access are required.
+
+The automated smoke check verifies the landing page and expects HTTP 400 with
+the API's invalid-link response for a confirmation request without a token.
+This exercises API startup/configuration without sending mail or storing personal
+data. After email verification, manually test signup from the new default
+hostname and custom domain, inbox delivery, confirmation, duplicate signup and
+unsubscribe. Check TLS, privacy/imprint links, and the daily cleanup schedule.
+The smoke check alone does not prove storage access or email delivery.
