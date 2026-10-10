@@ -102,6 +102,7 @@ terraform init
 
 ```bash
 # The resource group is imported automatically by the import block on apply.
+# Set manage_static_web_app_custom_domains = true in terraform.tfvars before importing existing domain bindings.
 terraform import azurerm_static_web_app.site "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}"
 terraform import 'azurerm_static_web_app_custom_domain.domains["bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/bomkeeper.dev"
 terraform import 'azurerm_static_web_app_custom_domain.domains["www.bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/www.bomkeeper.dev"
