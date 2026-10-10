@@ -79,8 +79,9 @@ This configuration is designed to adopt existing critical resources and protect 
 1) Create your variables file:
 
 ```bash
-cd /home/runner/work/bomkeeper.dev-Webseite/bomkeeper.dev-Webseite/infrastructure
+cd infrastructure
 cp terraform.tfvars.example terraform.tfvars
+# Replace the placeholder subscription_id in terraform.tfvars with the target subscription ID.
 ```
 
 2) Set shell vars for import commands:
