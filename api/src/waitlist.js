@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { azureErrorCode, RequestError } from "./storage.js";
 import { signToken, verifyToken } from "./tokens.js";
+import { confirmationContent } from "./email.js";
 
 const MAX_BODY_BYTES = 8192;
 const TOKEN_LIFETIME = 48 * 60 * 60 * 1000;
@@ -16,7 +17,14 @@ function escape(value) {
   })[character]);
 }
 
-function page(status, title, text, content = "") {
+function page(status, title, text, content = "", request) {
+  if (request?.headers.get("accept")?.split(",").some((type) => type.trim() === "application/json")) {
+    return {
+      status,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
+      jsonBody: { title, message: text },
+    };
+  }
   return {
     status,
     headers: {
@@ -62,18 +70,18 @@ async function formData(request, config, allowOpaqueOrigin = false) {
 }
 
 export function createHandlers({ config, store, sendEmail, now = Date.now }) {
-  const guarded = (handler) => async (request, context) => {
+  const guarded = (handler, supportsJson = false) => async (request, context) => {
     try {
       return await handler(request, context);
     } catch (error) {
       if (error instanceof RequestError) {
         context.warn("waitlist.request_rejected", { status: error.status, invocationId: context.invocationId });
-        const response = page(error.status, "Unable to complete your request", error.message);
+        const response = page(error.status, "Unable to complete your request", error.message, "", supportsJson ? request : undefined);
         if (error.status === 429) response.headers["Retry-After"] = "3600";
         return response;
       }
       audit(context, "waitlist.operation_failed", error);
-      return page(503, "Waitlist temporarily unavailable", "Your request could not be completed. Please try again in a few minutes.");
+      return page(503, "Waitlist temporarily unavailable", "Your request could not be completed. Please try again in a few minutes.", "", supportsJson ? request : undefined);
     }
   };
 
@@ -114,10 +122,7 @@ export function createHandlers({ config, store, sendEmail, now = Date.now }) {
         await sendEmail({
           senderAddress: config.sender,
           recipients: { to: [{ address: email }] },
-          content: {
-            subject: "Confirm your Bomkeeper waitlist signup",
-            plainText: `Confirm that you want Bomkeeper early-access and product updates:\n\n${confirm}\n\nThis link expires in 48 hours. Click it to confirm your signup immediately. If you did not request this, ignore this email or delete the signup:\n${unsubscribe}\n\nBomkeeper - ${config.baseUrl}`,
-          },
+          content: confirmationContent(confirm, unsubscribe, config.baseUrl),
         });
       } catch (error) {
         try {
@@ -128,8 +133,8 @@ export function createHandlers({ config, store, sendEmail, now = Date.now }) {
         throw error;
       }
     }
-    return page(200, "Check your inbox", "If this address is eligible for a new signup, we have sent a confirmation email. Check your spam folder too. Existing subscribers do not need to sign up again; confirmation emails can be requested once per hour.");
-  });
+    return page(200, "Check your inbox", "If this address is eligible for a new signup, a confirmation email has been queued. It may take a moment to arrive; check your spam folder too. Existing subscribers do not need to sign up again; confirmation emails can be requested once per hour.", "", request);
+  }, true);
 
   function tokenHandler(purpose) {
     return guarded(async (request) => {

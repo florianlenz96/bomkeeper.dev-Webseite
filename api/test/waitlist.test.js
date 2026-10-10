@@ -170,6 +170,39 @@ test("duplicates and concurrent signups send only one email", async () => {
   assert.equal(f.emails.length, 1, "confirmed users do not receive repeated confirmation emails");
 });
 
+test("async registration returns JSON and keeps duplicate responses indistinguishable", async () => {
+  const f = fixture();
+  const headers = { accept: "application/json" };
+  const response = await f.register({}, headers);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers["Content-Type"], "application/json; charset=utf-8");
+  assert.equal(response.headers["Cache-Control"], "no-store");
+  assert.match(response.jsonBody.message, /confirmation email has been queued/);
+  assert.deepEqual((await f.register({}, headers)).jsonBody, response.jsonBody);
+  assert.equal(f.emails.length, 1);
+  assert.match(f.emails[0].content.html, /Confirm my signup/);
+  assert.ok(f.emails[0].content.html.includes(f.token("confirm")));
+  assert.ok(f.emails[0].content.html.includes(f.token("unsubscribe")));
+  assert.equal(response.body, undefined);
+});
+
+test("async registration preserves validation, rate limits and safe failure responses", async () => {
+  const headers = { accept: "application/json" };
+  const f = fixture({ config: { hourlyEmailLimit: 1 } });
+  assert.equal((await f.register({ consent: "" }, headers)).status, 400);
+  assert.equal((await f.register({}, { ...headers, origin: "https://evil.example" })).status, 403);
+  await f.register({}, headers);
+  const limited = await f.register({ email: "other@example.com" }, headers);
+  assert.equal(limited.status, 429);
+  assert.equal(limited.headers["Retry-After"], "3600");
+  assert.match(limited.jsonBody.message, /too many requests/);
+  const failed = fixture({ sendEmail: async () => { throw new Error("secret"); } });
+  const unavailable = await failed.register({}, headers);
+  assert.equal(unavailable.status, 503);
+  assert.doesNotMatch(JSON.stringify(unavailable.jsonBody), /secret|user@example/);
+  assert.equal((await fixture().register()).headers["Content-Type"], "text/html; charset=utf-8");
+});
+
 test("cooldown, replacement and expiration prevent replay", async () => {
   const f = fixture();
   await f.register();
