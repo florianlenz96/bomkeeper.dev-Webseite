@@ -168,7 +168,8 @@ SWA token. An Azure administrator must first:
    configure required reviewers where supported. Configure these environment
    variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
    `TF_STATE_RESOURCE_GROUP`, `TF_STATE_STORAGE_ACCOUNT`, `TF_STATE_CONTAINER`,
-   `TF_STATE_KEY` (for example `website-production.tfstate`).
+   `TF_STATE_KEY` (for example `website-production.tfstate`),
+   `AZURE_RESOURCE_GROUP_NAME`, and `AZURE_STATIC_WEB_APP_NAME`.
    Set `TF_STATE_RESOURCE_GROUP=bomkeeper-web` and `TF_STATE_STORAGE_ACCOUNT`
    to the name of your manually created account.
 5. Review and edit the versioned `infrastructure/terraform.tfvars`, then commit
@@ -200,14 +201,18 @@ If you have local state already, use `terraform init -migrate-state` with those
 same arguments and preserve a secured backup. `init -backend=false` is only
 for offline validation, not provisioning.
 
-Push changes to `main` or manually run **Provision and deploy website** there.
-It tests the API, validates Terraform, applies a saved plan using locked remote
-state, retrieves and masks the new site's deployment token, and publishes both
-website and managed Node 22 API. Deployment jobs are serialized; PRs only
-validate and receive no Azure credentials. Never publish state/plans as artifacts.
-If publishing fails after apply, rerun the workflow against the same state.
+Push infrastructure changes to `main` or manually run **Provision infrastructure**
+there to validate Terraform and apply a saved plan using locked remote state.
+Website/API code changes use the separate **Deploy application** workflow; it
+tests the API, retrieves and masks the deployment token directly from the
+configured Static Web App, publishes the website and managed Node 22 API, and
+runs a smoke test without initializing Terraform or applying infrastructure.
+Both workflows serialize production deployments; PRs only validate and receive
+no Azure credentials. Never publish state/plans as artifacts. If publishing
+fails after an infrastructure apply, rerun the appropriate workflow.
 
-Stage 1 publishes a working website/API but deliberately returns 503 for signups.
+Stage 1 provisions the infrastructure; deploy the website/API separately using
+**Deploy application**. Signups deliberately return 503 until email is enabled.
 Complete the DNS/email stages below, update the verified flags in
 `infrastructure/terraform.tfvars`, and push the changes to `main` before
 launching the waitlist.
@@ -317,9 +322,10 @@ The SWA settings update depends on successful sender provisioning.
 
 ## Deployment of website/API code (separate from Terraform)
 
-The GitHub workflow provisions infrastructure before publishing. No
+The application workflow publishes without provisioning infrastructure. No
 `AZURE_STATIC_WEB_APPS_API_TOKEN` repository secret is needed; its token is read
-from the provisioned target. Manual publishing is also supported after apply.
+from the configured Static Web App. Manual publishing is also supported after
+infrastructure is provisioned.
 
 Manual deploy command:
 
