@@ -13,7 +13,7 @@ email_sender_username     = "waitlist"
 email_sender_display_name = "Bomkeeper"
 
 # Enable only after all email DNS verification states report Verified.
-email_domain_verified = false
+email_domain_verified = true
 
 waitlist_hourly_email_limit = 20
 waitlist_base_url           = "https://bomkeeper.dev"
