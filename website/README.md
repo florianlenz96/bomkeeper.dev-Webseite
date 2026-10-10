@@ -36,7 +36,7 @@ npm test
 cd ..
 npx --yes @azure/static-web-apps-cli@2.0.10 deploy ./website \
   --api-location ./api --api-language node --api-version 22 \
-  --env production --app-name bomkeeper-web --resource-group rg-bomkeeper-web
+  --env production --app-name bomkeeper-web --resource-group bomkeeper-web
 ```
 
 Nicht mit `sudo` ausfuehren. Der Command deployt keine Infrastruktur. Ohne
@@ -64,7 +64,7 @@ Anleitungen: [Apex-Domain](https://learn.microsoft.com/azure/static-web-apps/ape
 Funktioniert, aber: keine eigenen HTTP-Header (die Sicherheits-Header aus `staticwebapp.config.json` greifen nicht) und **kein HTTPS mit eigener Domain** ohne Azure Front Door. Für `bomkeeper.dev` daher nur mit Front Door sinnvoll.
 
 ```bash
-az storage account create -n <name> -g rg-bomkeeper-web -l westeurope --sku Standard_LRS --kind StorageV2
+az storage account create -n <name> -g bomkeeper-web -l westeurope --sku Standard_LRS --kind StorageV2
 az storage blob service-properties update --account-name <name> --static-website \
   --index-document index.html --404-document 404.html --auth-mode login
 az storage blob upload-batch --account-name <name> -s . -d '$web' --overwrite --auth-mode login

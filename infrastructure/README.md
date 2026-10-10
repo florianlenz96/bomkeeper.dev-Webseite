@@ -2,7 +2,8 @@
 
 This folder manages infrastructure only:
 
-- Azure Resource Group `rg-bomkeeper-web` (West Europe), new or imported
+- Existing Azure Resource Group `bomkeeper-web`, automatically imported
+- Existing manually created state Storage Account in `bomkeeper-web`, not managed by this configuration
 - Azure Static Web App `bomkeeper-web` (Free tier), new or imported
 - Optional SWA custom domains, enabled after DNS is ready:
   - `bomkeeper.dev` (apex)
@@ -86,7 +87,7 @@ cp terraform.tfvars.example terraform.tfvars
 
 ```bash
 export SUBSCRIPTION_ID="35927a95-12bd-4128-8346-ace0cc0491c6"
-export RESOURCE_GROUP_NAME="rg-bomkeeper-web"
+export RESOURCE_GROUP_NAME="bomkeeper-web"
 export STATIC_WEB_APP_NAME="bomkeeper-web"
 export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
 ```
@@ -100,13 +101,13 @@ terraform init
 4) Import existing resources:
 
 ```bash
-terraform import azurerm_resource_group.web "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}"
+# The resource group is imported automatically by the import block on apply.
 terraform import azurerm_static_web_app.site "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}"
 terraform import 'azurerm_static_web_app_custom_domain.domains["bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/bomkeeper.dev"
 terraform import 'azurerm_static_web_app_custom_domain.domains["www.bomkeeper.dev"]' "/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Web/staticSites/${STATIC_WEB_APP_NAME}/customDomains/www.bomkeeper.dev"
 ```
 
-> Existing values you provided:
+> Historical site values (not the newly created `bomkeeper-web` resource group):
 > - SWA ID: `/subscriptions/35927a95-12bd-4128-8346-ace0cc0491c6/resourceGroups/rg-bomkeeper-web/providers/Microsoft.Web/staticSites/bomkeeper-web`
 > - External DNS currently expected: apex A `20.101.2.157`, `www` CNAME `kind-beach-02c64fb03.3.azurestaticapps.net`
 
@@ -114,9 +115,15 @@ terraform import 'azurerm_static_web_app_custom_domain.domains["www.bomkeeper.de
 
 ## Fresh deployment path (optional)
 
-Use unique resource names and a globally available storage account name. Set
+The resource group must already exist. The import block adopts `bomkeeper-web`
+on the first apply; subsequent applies do not re-import it. Set `location` to
+the existing group's Azure location to avoid a replacement plan. `prevent_destroy`
+protects the group, but is not a substitute for an Azure delete lock on the group
+and state account. Review any tag changes in the first plan.
+
+Use unique resource names and a globally available waitlist storage account name. Set
 the real subscription ID; the all-zero value in the example is a placeholder.
-Skip imports for genuinely new resources, but never use a new empty state to
+Skip manual imports for genuinely new website resources, but never use a new empty state to
 manage resources already tracked elsewhere.
 
 If DNS is not ready yet, set:
@@ -137,17 +144,19 @@ enable Terraform domain management. Import any bindings created by the wizard.
 The workflow uses OIDC, not a long-lived Azure credential or a manually copied
 SWA token. An Azure administrator must first:
 
-1. Create a separate state resource group, globally unique StorageV2 account
-   (HTTPS only, TLS 1.2, no anonymous blob access) and private blob container.
-   Enable blob versioning and soft delete. Keep state outside the website
-   resource group. Azure Blob provides state locking.
+1. Use the existing manually created Storage Account in `bomkeeper-web` for
+   Terraform state. Create a private blob container there if missing. Ensure
+   HTTPS only, TLS 1.2, no anonymous blob access, blob versioning and soft delete.
+   Azure Blob provides state locking. The backend account/container stay outside
+   Terraform management even though website resources share their resource group.
+   Never use this account's name as `storage_account_name`: that input creates
+   a separate waitlist Table Storage account in the same group.
 2. Create an Entra application/service principal or user-assigned identity.
    Add a federated credential with issuer `https://token.actions.githubusercontent.com`,
    subject `repo:florianlenz96/bomkeeper.dev-Webseite:environment:production`
    and audience `api://AzureADTokenExchange`.
-3. Grant the identity Contributor at the target subscription scope if it must
-   create the website resource group, or at a pre-created target resource group
-   scope (import that group before applying). Grant Storage Blob Data Contributor
+3. Grant the identity Contributor on the existing `bomkeeper-web` resource group;
+   subscription-wide Contributor is not needed. Grant Storage Blob Data Contributor
    on the state storage account for backend access. Do not grant Owner.
    Register Microsoft.Web, Microsoft.Storage and Microsoft.Communication.
 4. Create the GitHub `production` environment, restrict it to `main`, and
@@ -155,9 +164,16 @@ SWA token. An Azure administrator must first:
    variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
    `TF_STATE_RESOURCE_GROUP`, `TF_STATE_STORAGE_ACCOUNT`, `TF_STATE_CONTAINER`,
    `TF_STATE_KEY` (for example `website-production.tfstate`).
+   Set `TF_STATE_RESOURCE_GROUP=bomkeeper-web` and `TF_STATE_STORAGE_ACCOUNT`
+   to the name of your manually created account.
 5. Add environment secret `TF_VARS_JSON`: a JSON object with inputs matching
    `terraform.tfvars.example`. Begin with both domain management and email
    verification disabled. Do not include Azure credentials.
+   Set `resource_group_name` to `bomkeeper-web` and `location` to the group's
+   actual location. Old secrets containing `rg-bomkeeper-web` must be updated.
+   If Terraform already manages a different group with deployed resources, stop:
+   do not rename that group in state or apply a replacement plan. Existing
+   resources need a separately reviewed migration.
 
 For local operations, log in with Azure CLI, set `ARM_SUBSCRIPTION_ID` and
 `ARM_USE_AZUREAD=true`, then initialize the same backend:
@@ -237,10 +253,10 @@ Each output includes record `name`, `type`, `value`, `ttl`.
 After DNS records are added and propagated:
 
 ```bash
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type Domain
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type SPF
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM
-az communication email domain initiate-verification --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM2
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type Domain
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type SPF
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM
+az communication email domain initiate-verification --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --verification-type DKIM2
 ```
 
 Install the CLI extension first if missing:
@@ -253,7 +269,7 @@ second SPF record. DKIM records use the hostnames and values from Terraform.
 Check status:
 
 ```bash
-az communication email domain show --resource-group rg-bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --output json
+az communication email domain show --resource-group bomkeeper-web --email-service-name bomkeeper-email --domain-name bomkeeper.dev --output json
 ```
 
 ### Stage 2: Enable email resources and email sending flag
@@ -300,7 +316,7 @@ Manual deploy command:
 cd ..
 npm --prefix api ci
 npm --prefix api test
-npx --yes @azure/static-web-apps-cli@2.0.10 deploy ./website --api-location ./api --api-language node --api-version 22 --env production --app-name bomkeeper-web --resource-group rg-bomkeeper-web
+npx --yes @azure/static-web-apps-cli@2.0.10 deploy ./website --api-location ./api --api-language node --api-version 22 --env production --app-name bomkeeper-web --resource-group bomkeeper-web
 ```
 
 You can also read these outputs:

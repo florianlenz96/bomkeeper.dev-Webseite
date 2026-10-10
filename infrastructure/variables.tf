@@ -11,9 +11,9 @@ variable "location" {
 }
 
 variable "resource_group_name" {
-  description = "Resource group name for all resources."
+  description = "Existing resource group name shared by the state storage and website resources."
   type        = string
-  default     = "rg-bomkeeper-web"
+  default     = "bomkeeper-web"
 }
 
 variable "static_web_app_name" {

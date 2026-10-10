@@ -1,7 +1,7 @@
 subscription_id = "00000000-0000-0000-0000-000000000000"
 
 location            = "westeurope"
-resource_group_name = "rg-bomkeeper-web"
+resource_group_name = "bomkeeper-web"
 static_web_app_name = "bomkeeper-web"
 
 # Must be globally unique in Azure and 3-24 lowercase alphanumeric.

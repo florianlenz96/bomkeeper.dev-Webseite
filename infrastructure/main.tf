@@ -1,3 +1,10 @@
+data "azurerm_client_config" "current" {}
+
+import {
+  to = azurerm_resource_group.web
+  id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${var.resource_group_name}"
+}
+
 resource "azurerm_resource_group" "web" {
   name     = var.resource_group_name
   location = var.location
