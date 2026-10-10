@@ -46,9 +46,9 @@ Formular keine Anmeldungen entgegen.
 ### Variante B: automatisch per GitHub Actions
 
 1. OIDC-Zugang, geschuetzten Terraform-Blob-State und GitHub-Environment `production` gemaess Infrastruktur-README einrichten.
-2. Variablen und `TF_VARS_JSON` konfigurieren; der Deployment-Token wird automatisch aus der bereitgestellten Static Web App gelesen.
+2. GitHub-Environment-Variablen konfigurieren und die versionierte `infrastructure/terraform.tfvars` pruefen. Das Secret `TF_VARS_JSON` wird nicht mehr benoetigt und kann geloescht werden; der Deployment-Token wird automatisch aus der bereitgestellten Static Web App gelesen.
 3. Jeder relevante Push auf `main` testet und validiert, provisioniert die Infrastruktur und veroeffentlicht Website plus API mit anschliessendem Smoke-Test. Pull Requests validieren nur.
-4. DNS und E-Mail-Domain verifizieren und die Flags in `TF_VARS_JSON` aktualisieren. Bis dahin bleibt die Anmeldung absichtlich deaktiviert.
+4. DNS und E-Mail-Domain verifizieren und die Flags in `infrastructure/terraform.tfvars` aktualisieren und committen. Bis dahin bleibt die Anmeldung absichtlich deaktiviert.
 
 ### Eigene Domain bomkeeper.dev
 

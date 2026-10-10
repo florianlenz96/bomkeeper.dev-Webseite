@@ -24,9 +24,10 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Terraform variable files (keep examples)
+# Terraform variable files (keep examples and non-secret production configuration)
 *.tfvars
 *.tfvars.json
 *.auto.tfvars
 *.auto.tfvars.json
 !*.tfvars.example
+!/infrastructure/terraform.tfvars
