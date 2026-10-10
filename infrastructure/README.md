@@ -39,8 +39,11 @@ The Static Web App app settings are managed with:
 
 `WAITLIST_ALLOWED_ORIGINS` supports both custom domains and SWA deployment URL for POST requests from standard HTML forms.
 Origins include `waitlist_base_url`, the configured custom domains and the actual
-generated SWA hostname. App settings are applied with AzAPI after SWA creation
-to avoid a Terraform dependency cycle; AzureRM ignores those settings.
+generated SWA hostname. App settings are applied with an AzAPI PUT action after
+SWA creation to avoid a Terraform dependency cycle; AzureRM ignores those settings.
+The settings endpoint has no GET operation. Reapply the action explicitly with
+`terraform apply -replace=azapi_resource_action.site_settings` if settings are
+changed outside Terraform; the action does not detect remote settings drift.
 Remove the obsolete `static_web_app_default_hostname` input from old variable files.
 
 ---

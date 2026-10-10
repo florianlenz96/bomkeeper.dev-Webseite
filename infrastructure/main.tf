@@ -103,9 +103,10 @@ resource "azurerm_static_web_app" "site" {
   }
 }
 
-resource "azapi_update_resource" "site_settings" {
+resource "azapi_resource_action" "site_settings" {
   type        = "Microsoft.Web/staticSites/config@2022-03-01"
   resource_id = "${azurerm_static_web_app.site.id}/config/appsettings"
+  method      = "PUT"
   # Configure after creation so the generated hostname does not cause a cycle.
   body = sensitive({
     properties = local.static_web_app_settings
