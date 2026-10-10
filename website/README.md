@@ -11,7 +11,8 @@ Die Infrastruktur inklusive der bestehenden Static Web App wird unter [`../infra
 | `404.html` | Fehlerseite |
 | `staticwebapp.config.json` | Azure Static Web Apps: Sicherheits-Header, Caching, 404 |
 | `favicon.svg`, `robots.txt`, `sitemap.xml` | Icon und Suchmaschinen |
-| `.github/workflows/deploy-website.yml` | Automatisches Deployment bei jedem Push |
+| `.github/workflows/deploy-application.yml` | Anwendung testen und deployen |
+| `.github/workflows/provision-infrastructure.yml` | Infrastruktur validieren und bereitstellen |
 
 ## Vor dem Livegang ersetzen
 
@@ -46,8 +47,8 @@ Formular keine Anmeldungen entgegen.
 ### Variante B: automatisch per GitHub Actions
 
 1. OIDC-Zugang, geschuetzten Terraform-Blob-State und GitHub-Environment `production` gemaess Infrastruktur-README einrichten.
-2. GitHub-Environment-Variablen konfigurieren und die versionierte `infrastructure/terraform.tfvars` pruefen. Das Secret `TF_VARS_JSON` wird nicht mehr benoetigt und kann geloescht werden; der Deployment-Token wird automatisch aus der bereitgestellten Static Web App gelesen.
-3. Jeder relevante Push auf `main` testet und validiert, provisioniert die Infrastruktur und veroeffentlicht Website plus API mit anschliessendem Smoke-Test. Pull Requests validieren nur.
+2. GitHub-Environment-Variablen konfigurieren und die versionierte `infrastructure/terraform.tfvars` pruefen. Das Secret `TF_VARS_JSON` wird nicht mehr benoetigt und kann geloescht werden; der Deployment-Token wird automatisch aus der konfigurierten Static Web App gelesen.
+3. Relevante Infrastruktur-Aenderungen validieren und provisionieren nur die Infrastruktur. Website/API-Aenderungen testen und veroeffentlichen nur die Anwendung mit anschliessendem Smoke-Test. Pull Requests validieren jeweils nur den betroffenen Bereich.
 4. DNS und E-Mail-Domain verifizieren und die Flags in `infrastructure/terraform.tfvars` aktualisieren und committen. Bis dahin bleibt die Anmeldung absichtlich deaktiviert.
 
 ### Eigene Domain bomkeeper.dev

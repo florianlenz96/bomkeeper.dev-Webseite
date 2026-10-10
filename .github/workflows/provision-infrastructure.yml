@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     concurrency:
-      group: infrastructure-production
+      group: website-production
       cancel-in-progress: false
     permissions:
       contents: read
