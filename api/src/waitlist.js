@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { RequestError } from "./storage.js";
+import { azureErrorCode, RequestError } from "./storage.js";
 import { signToken, verifyToken } from "./tokens.js";
 
 const MAX_BODY_BYTES = 8192;
@@ -34,7 +34,7 @@ function page(status, title, text, content = "") {
 function audit(context, event, error) {
   context.error(event, {
     invocationId: context.invocationId,
-    code: typeof error?.code === "string" ? error.code : "unavailable",
+    code: azureErrorCode(error) ?? "unavailable",
     status: error?.statusCode,
   });
 }

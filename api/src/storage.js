@@ -8,12 +8,17 @@ export class RequestError extends Error {
   }
 }
 
+export function azureErrorCode(error) {
+  return [error?.details?.errorCode, error?.details?.odataError?.code, error?.code]
+    .find((code) => typeof code === "string" && code.length > 0);
+}
+
 function isConflict(error) {
   return error.statusCode === 409 || error.statusCode === 412;
 }
 
 export function isMissingEntity(error) {
-  return error.statusCode === 404 && ["ResourceNotFound", "EntityNotFound"].includes(error.code);
+  return error.statusCode === 404 && ["ResourceNotFound", "EntityNotFound"].includes(azureErrorCode(error));
 }
 
 export class WaitlistStore {

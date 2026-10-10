@@ -210,6 +210,20 @@ test("storage outages are not treated as missing entities or success", async () 
   assert.match(JSON.stringify(f.logs), /TableNotFound/);
 });
 
+test("SDK service codes in details are logged without response bodies or credentials", async () => {
+  const f = fixture();
+  f.table.getEntity = async () => {
+    throw Object.assign(new Error("secret connection string and user@example.com"), {
+      statusCode: 404,
+      details: { errorCode: "TableNotFound", odataError: { message: "secret response body" } },
+    });
+  };
+  assert.equal((await f.register()).status, 503);
+  assert.match(JSON.stringify(f.logs), /TableNotFound/);
+  assert.doesNotMatch(JSON.stringify(f.logs), /secret|user@example/);
+  assert.equal(f.emails.length, 0);
+});
+
 test("both Azure entity-not-found error variants allow initial registration", async () => {
   for (const code of ["ResourceNotFound", "EntityNotFound"]) {
     const f = fixture();
