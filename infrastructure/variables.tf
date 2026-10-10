@@ -128,7 +128,7 @@ variable "email_sender_display_name" {
 variable "email_domain_verified" {
   description = "Gate for email-enabled resources. Keep false until domain DNS verification has completed."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "tags" {
