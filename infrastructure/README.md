@@ -51,7 +51,7 @@ Remove the obsolete `static_web_app_default_hostname` input from old variable fi
 
 ## Prerequisites
 
-- Terraform `>= 1.5` (validated with 1.11.4)
+- Terraform `>= 1.6` (import ID expressions; validated with 1.11.4)
 - Azure CLI logged in
 - Permission to manage:
   - `Microsoft.Web/staticSites`
