@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bomkeeper – SBOMs revisionssicher archivieren</title>
-<meta name="description" content="Bomkeeper archiviert SBOMs unveränderbar, signiert und langfristig. Für nachvollziehbare Software-Lieferketten, CRA-Dokumentation und schnelle Antworten bei Audits und Sicherheitsvorfällen.">
+<title>Bomkeeper – Der Nachweis-Tresor für SBOMs</title>
+<meta name="description" content="Bomkeeper bewahrt Ihre SBOMs manipulationssicher, signiert und zehn Jahre lang auf – in Ihrem eigenen Speicher oder als Managed Service. Unterstützt die Aufbewahrungspflichten des EU Cyber Resilience Act.">
 <meta name="theme-color" content="#0A0C1D">
 <link rel="canonical" href="https://bomkeeper.dev/de/">
 <link rel="alternate" hreflang="en" href="https://bomkeeper.dev/">
@@ -13,197 +13,518 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://bomkeeper.dev/de/">
-<meta property="og:title" content="Bomkeeper – SBOMs revisionssicher archivieren">
-<meta property="og:description" content="Jede ausgelieferte Softwareversion nachvollziehbar dokumentieren: SBOMs unveränderbar, signiert und langfristig archiviert.">
+<meta property="og:title" content="Bomkeeper – Der Nachweis-Tresor für SBOMs">
+<meta property="og:description" content="Ihre SBOMs überleben Ihre Pipeline nicht. Bomkeeper bewahrt sie auf: manipulationssicher, signiert und zehn Jahre lang.">
 <meta name="twitter:card" content="summary">
 <link rel="preload" href="../fonts/instrument-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../fonts/instrument-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-@font-face{font-family:'Instrument Sans';font-weight:400;font-display:swap;src:url(../fonts/instrument-sans-latin-400-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-weight:500;font-display:swap;src:url(../fonts/instrument-sans-latin-500-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-weight:600;font-display:swap;src:url(../fonts/instrument-sans-latin-600-normal.woff2) format('woff2')}
-@font-face{font-family:'Instrument Sans';font-weight:700;font-display:swap;src:url(../fonts/instrument-sans-latin-700-normal.woff2) format('woff2')}
-@font-face{font-family:'JetBrains Mono';font-weight:400;font-display:swap;src:url(../fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/instrument-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/instrument-sans-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/instrument-sans-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/instrument-sans-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
 :root{--accent:#6EE7B7}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:#0A0C1D;color:#E9EAF2;font-family:'Instrument Sans',sans-serif;line-height:1.6}
-a{color:var(--accent)}a:hover{color:#A7F3D0}
+body{margin:0;background:#0A0C1D}
+a{color:#6EE7B7}a:hover{color:#A7F3D0}
+a.navlink:hover,footer a:hover{color:#E9EAF2 !important}
 section[id]{scroll-margin-top:24px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
-.wrap{max-width:1200px;margin:0 auto;padding-left:32px;padding-right:32px}
-.nav{display:flex;align-items:center;flex-wrap:wrap;gap:24px}
-.nav a{color:#A3A8C3;text-decoration:none}
-.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border-radius:10px;background:var(--accent);color:#0A0C1D;text-decoration:none;font-weight:600}
-.button:hover{color:#0A0C1D;background:#A7F3D0}
-.button.secondary{background:transparent;border:1px solid #343957;color:#E9EAF2}
-.eyebrow{font:13px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.section{padding-top:96px;padding-bottom:96px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.card{border:1px solid #262A45;background:#12152B;border-radius:14px;padding:28px}
-.muted{color:#A3A8C3}
-@media(max-width:800px){.grid3,.grid2{grid-template-columns:1fr}.nav{gap:12px}.hide-mobile{display:none!important}.wrap{padding-left:20px;padding-right:20px}.section{padding-top:64px;padding-bottom:64px}h1{font-size:40px!important}h2{font-size:32px!important}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:400}
+details[open] summary::after{content:"–"}
+input::placeholder{color:#6B7090}
+@media (max-width:960px){
+  .g3{grid-template-columns:1fr !important}
+  .h1{font-size:44px !important}
+  .h2{font-size:34px !important}
+  .navlink{display:none !important}
+}
+@media (max-width:720px){
+  .g2{grid-template-columns:1fr !important}
+  .gh{display:none !important}
+  header nav[aria-label]{gap:12px !important}
+  .h1{font-size:36px !important}
+  .h2{font-size:30px !important}
+  header>div,main,footer>div,section[aria-label]>div,#why,#how,#open-source,#consulting,#faq,#dependency-track>div,#pricing>div,#waitlist>div{padding-left:20px !important;padding-right:20px !important}
+  #why{padding-top:72px !important}
+  #how,#open-source,#consulting,#faq,#dependency-track>div,#pricing>div,#waitlist>div{padding-top:72px !important;padding-bottom:72px !important}
+  main{padding-top:48px !important;padding-bottom:56px !important;gap:40px !important}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<header style="border-bottom:1px solid #1E2240">
-  <div class="wrap" style="min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px">
-    <a href="/de/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:#E9EAF2;font-weight:700;font-size:19px"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="5"></rect><path d="M9 10h10M9 14h10M9 18h6"></path></svg>bomkeeper.dev</a>
-    <nav class="nav" aria-label="Hauptnavigation">
-      <a class="hide-mobile" href="#warum">Warum</a>
-      <a class="hide-mobile" href="#ablauf">So funktioniert’s</a>
-      <a class="hide-mobile" href="#cra">CRA</a>
-      <a class="hide-mobile" href="#betrieb">Betrieb</a>
-      <a href="/" lang="en" hreflang="en" aria-label="English version" style="min-height:44px;display:inline-flex;align-items:center">EN</a>
-      <a class="button" href="#interesse">Interesse vormerken</a>
-    </nav>
-  </div>
-</header>
-
-<main>
-  <section class="wrap" style="padding-top:80px;padding-bottom:80px;display:flex;flex-wrap:wrap;align-items:center;gap:56px">
-    <div style="flex:1 1 500px;min-width:0">
-      <span class="eyebrow">Nachweisbare Software-Lieferketten</span>
-      <h1 style="margin:18px 0;font-size:56px;line-height:1.07;letter-spacing:-.03em">Ihre Software wird ausgeliefert. <span style="color:var(--accent)">Der Nachweis sollte bleiben.</span></h1>
-      <p class="muted" style="max-width:620px;font-size:20px;line-height:1.55">Bomkeeper archiviert Software-Stücklisten (SBOMs) für jede ausgelieferte Version – unveränderbar, signiert und langfristig auffindbar. Damit Sie bei Sicherheitsvorfällen, Kundenprüfungen und Audits belegen können, was tatsächlich ausgeliefert wurde.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:24px">
-        <a class="button" href="#interesse">Frühzugang anfragen</a>
-        <a class="button secondary" href="https://github.com/florianlenz96/Bomkeeper">Auf GitHub ansehen</a>
-      </div>
-      <p style="font-size:14px;color:#8A8FAD;margin-top:20px">Ergänzt OWASP Dependency-Track – ersetzt es nicht. Unterstützt die Aufbewahrung von SBOMs im Kontext des Cyber Resilience Act (CRA).</p>
+<div class="page" style="min-height: 820px; background: #0A0C1D; color: #E9EAF2; font-family: 'Instrument Sans', sans-serif; box-sizing: border-box">
+  <header style="border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 18px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #E9EAF2">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="5"></rect><path d="M9 10h10M9 14h10M9 18h6"></path></svg>
+        <span style="font-weight: 700; font-size: 19px; letter-spacing: -0.01em">bomkeeper.dev</span>
+      </a>
+      <nav aria-label="Hauptnavigation" style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px">
+        <a class="navlink" href="#why" style="color: #A3A8C3; text-decoration: none">Warum</a>
+        <a class="navlink" href="#how" style="color: #A3A8C3; text-decoration: none">So funktioniert es</a>
+        <a class="navlink" href="#open-source" style="color: #A3A8C3; text-decoration: none">Open Source</a>
+        <a class="navlink" href="#pricing" style="color: #A3A8C3; text-decoration: none">Selbstbetrieb oder Cloud</a>
+        <a class="navlink" href="#consulting" style="color: #A3A8C3; text-decoration: none">Beratung</a>
+        <a href="/" lang="en" hreflang="en" aria-label="English version" title="English" style="color: #A3A8C3; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center"><span aria-hidden="true" style="font-size: 20px; line-height: 1">🇬🇧</span></a>
+        <a href="https://github.com/florianlenz96/Bomkeeper" class="gh" aria-label="Bomkeeper on GitHub" style="color: #A3A8C3; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 22v-3.9a3.4 3.4 0 0 0-1-2.6c3.1-.4 6.4-1.5 6.4-6.9a5.4 5.4 0 0 0-1.5-3.7 5 5 0 0 0-.1-3.7s-1.2-.4-3.9 1.4a13.4 13.4 0 0 0-7 0C6.2 1.8 5 2.2 5 2.2a5 5 0 0 0-.1 3.7 5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.3 6.5 6.4 6.9a3.4 3.4 0 0 0-1 2.6V22"></path></svg>
+        </a>
+        <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center">Auf die Warteliste</a>
+      </nav>
     </div>
-    <div class="card" style="flex:1 1 360px;min-width:0">
-      <span class="eyebrow">Archivierter Nachweis</span>
-      <h2 style="font-size:26px;line-height:1.2;margin:10px 0 20px">Steuerung X200 · Version 3.2.1</h2>
-      <div class="grid2" style="font-size:14px;gap:18px">
-        <div><span class="muted">In Verkehr gebracht</span><br><strong>11.12.2027</strong></div>
-        <div><span class="muted">Aufbewahren bis</span><br><strong>11.12.2037</strong></div>
-        <div><span class="muted">Format</span><br><strong>CycloneDX 1.6</strong></div>
-        <div><span class="muted">Speicherung</span><br><strong>Unveränderbar (WORM)</strong></div>
+  </header>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 80px 32px 80px; display: flex; flex-wrap: wrap; align-items: center; gap: 64px">
+    <div style="flex: 1 1 500px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+
+      <h1 class="h1" style="margin: 0; font-size: 60px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 700">Ihre SBOMs überleben Ihre Pipeline nicht. <span style="color: var(--accent)">Bomkeeper bewahrt sie auf.</span></h1>
+      <p style="margin: 0; font-size: 20px; line-height: 1.55; color: #A3A8C3; max-width: 560px">Der Nachweis-Tresor für Software-Stücklisten (SBOMs): manipulationssicher, signiert und zehn Jahre lang aufbewahrt. In Ihrem eigenen Speicher oder als Managed Service.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px">
+        <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center">Auf die Warteliste</a>
+        <a href="https://github.com/florianlenz96/Bomkeeper" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 500; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2.5M15 22v-3.9a3.4 3.4 0 0 0-1-2.6c3.1-.4 6.4-1.5 6.4-6.9a5.4 5.4 0 0 0-1.5-3.7 5 5 0 0 0-.1-3.7s-1.2-.4-3.9 1.4a13.4 13.4 0 0 0-7 0C6.2 1.8 5 2.2 5 2.2a5 5 0 0 0-.1 3.7 5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.3 6.5 6.4 6.9a3.4 3.4 0 0 0-1 2.6V22"></path></svg>
+          Auf GitHub ansehen
+        </a>
       </div>
-      <div style="margin-top:20px;padding:14px 16px;border:1px solid #1E2240;border-radius:8px;background:#0A0C1D;font:13px/1.8 'JetBrains Mono',monospace;color:#CDD0E0">SHA-256 · Signatur gültig<br>Zeitstempel nach RFC 3161</div>
-      <p style="color:var(--accent);font-weight:600;margin-bottom:0">✓ Auch ohne Bomkeeper offline prüfbar</p>
+      <p style="margin: 0; font-size: 14px; color: #8A8FAD">Unterstützt die Aufbewahrungspflichten des CRA. Ergänzt OWASP Dependency-Track – ersetzt es aber nicht.</p>
+    </div>
+
+    <div style="flex: 1 1 420px; min-width: 0">
+      <div style="background: #12152B; border: 1px solid #262A45; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Nachweispaket</span>
+            <span style="font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Controller X200 · 3.2.1</span>
+          </div>
+          <span style="border: 2px solid var(--accent); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 12px; letter-spacing: 0.12em; padding: 6px 10px; border-radius: 6px; transform: rotate(-4deg); white-space: nowrap">VERSIEGELT</span>
+        </div>
+        <div class="g2keep" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; font-size: 14px">
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Inverkehrbringung</span><span style="font-weight: 600; font-size: 16px">2027-12-11</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Aufbewahrung bis</span><span style="font-weight: 600; font-size: 16px">2037-12-11</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Format</span><span style="font-weight: 600; font-size: 16px">CycloneDX 1.6</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="color: #8A8FAD">Speicher</span><span style="font-weight: 600; font-size: 16px">WORM, gesperrt</span></div>
+        </div>
+        <div style="background: #0A0C1D; border: 1px solid #1E2240; border-radius: 8px; padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.8; color: #CDD0E0; overflow-x: auto">sha256 9f2c…e41a<br>Signatur gültig · RFC-3161-Zeitstempel</div>
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--accent); font-weight: 600">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          Offline prüfbar – auch ohne Bomkeeper
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section aria-label="Passt in Ihren Technologie-Stack" style="border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240; background: #0E1126">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px">
+      <span style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8FAD">Passt in Ihren Technologie-Stack</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #CDD0E0">
+        <span>CycloneDX</span>
+        <span>SPDX</span>
+        <span>Dependency-Track</span>
+        <span>GitHub Actions</span>
+        <span>Azure DevOps</span>
+        <span>GitLab CI</span>
+        <span>Amazon S3</span>
+        <span>Azure Blob Speicher</span>
+        <span>MinIO</span>
+      </div>
     </div>
   </section>
 
-  <section id="warum" class="section" style="background:#0E1126;border-top:1px solid #1E2240;border-bottom:1px solid #1E2240">
-    <div class="wrap">
-      <div style="max-width:760px;margin-bottom:40px">
-        <span class="eyebrow">Warum das wichtig ist</span>
-        <h2 style="font-size:42px;line-height:1.1;letter-spacing:-.02em;margin:14px 0">Build-Systeme sind darauf ausgelegt, Artefakte zu löschen.</h2>
-        <p class="muted" style="font-size:18px">Viele Unternehmen erzeugen bereits SBOMs. Die Lücke entsteht danach: Build-Artefakte verschwinden, Zuständigkeiten wechseln und Jahre später lässt sich kaum noch belegen, welche Komponenten in einer ausgelieferten Version steckten.</p>
+  <section id="why" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px 0; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Das Problem</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">CI-Pipelines sind darauf ausgelegt, zu vergessen.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">SBOMs zu erstellen ist gelöst. Sie aufzubewahren nicht. Die meisten Teams erzeugen sie als Build-Artefakte – in einem System, das dafür ausgelegt ist, Artefakte zu löschen.</p>
+    </div>
+
+    <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">Artefakte verfallen</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">CI-Systeme löschen Build-Artefakte nach Tagen oder Wochen. Die SBOM des Vorjahres-Releases ist längst verschwunden.</p>
       </div>
-      <div class="grid3">
-        <article class="card"><h3 style="margin-top:0">Nachweis statt Dateiablage</h3><p class="muted" style="margin-bottom:0">Ein JSON-Dokument allein belegt weder seine Unverändertheit noch, zu welcher Produktversion es gehört. Bomkeeper versieht den Originalinhalt mit Hash, Signatur und vertrauenswürdigem Zeitstempel.</p></article>
-        <article class="card"><h3 style="margin-top:0">Schnellere Antworten</h3><p class="muted" style="margin-bottom:0">Bei einer Schwachstelle lässt sich nachvollziehen, welche ausgelieferten Versionen betroffen sein könnten – statt alte Build-Systeme und Backups durchsuchen zu müssen.</p></article>
-        <article class="card"><h3 style="margin-top:0">Weniger Audit-Aufwand</h3><p class="muted" style="margin-bottom:0">Kunden, Prüfer und Aufsichtsstellen erhalten den passenden Nachweis gezielt und nachvollziehbar, auch wenn die Version bereits lange nicht mehr aktiv entwickelt wird.</p></article>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M10 13l4 4M14 13l-4 4"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">Kein Nachweis</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">Eine JSON-Datei in einem Bucket beweist nichts. Niemand kann belegen, dass sie unverändert ist und genau zu dem gehört, was Sie ausgeliefert haben.</p>
       </div>
-      <p class="muted" style="margin-top:28px"><strong style="color:#E9EAF2">Für den deutschen Mittelstand und Finanzunternehmen:</strong> Eine nachvollziehbare Software-Lieferkette stärkt interne Kontrollen und erleichtert Kunden- und Sicherheitsprüfungen. Bomkeeper ist ein Baustein für technische Nachweise, keine pauschale Compliance-Lösung.</p>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 14px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5A97F" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4M11 8v3M11 14h.01"></path></svg>
+        <h3 style="margin: 0; font-size: 20px; font-weight: 600">Langsame Antworten</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A8C3">Ein Kunde, Auditor oder eine Behörde fragt nach einem Release von vor drei Jahren. Die Antwort dauert Tage – wenn es überhaupt eine gibt.</p>
+      </div>
+    </div>
+
+    <div style="border: 1px solid #262A45; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+      <span style="font-size: 15px; font-weight: 600">Was der Cyber Resilience Act von Herstellern verlangt</span>
+      <ol class="g3" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #343957; padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E9EAF2">11. September 2026</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Meldepflichten für aktiv ausgenutzte Schwachstellen beginnen, einschließlich einer Frühwarnung innerhalb von 24 Stunden.</span>
+        </li>
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid var(--accent); padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--accent)">11. Dezember 2027</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Vollständige Anwendung: Eine maschinenlesbare SBOM ist Teil der technischen Dokumentation jedes Produkts.</span>
+        </li>
+        <li style="display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #343957; padding-top: 16px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #E9EAF2">+10 Jahre</span>
+          <span style="font-size: 15px; line-height: 1.55; color: #A3A8C3">Die technische Dokumentation muss nach dem Inverkehrbringen zehn Jahre oder – falls länger – für die Dauer des Supportzeitraums aufbewahrt werden.</span>
+        </li>
+      </ol>
+      <span style="font-size: 13px; color: #8A8FAD">Verordnung (EU) 2024/2847. Dies ist eine Zusammenfassung und keine Rechtsberatung.</span>
     </div>
   </section>
 
-  <section id="cra" class="wrap section">
-    <div class="card" style="padding:32px">
-      <span class="eyebrow">Regulatorischer Kontext</span>
-      <h2 style="font-size:38px;line-height:1.1;margin:12px 0">Cyber Resilience Act: Dokumentation muss über Releases hinaus verfügbar bleiben.</h2>
-      <p class="muted" style="font-size:17px;max-width:900px">Der CRA sieht für betroffene Produkte mit digitalen Elementen eine maschinenlesbare SBOM als Teil der technischen Dokumentation vor. Die technische Dokumentation ist grundsätzlich zehn Jahre nach dem Inverkehrbringen aufzubewahren – oder während der längeren Supportdauer. Die Meldepflichten für aktiv ausgenutzte Schwachstellen beginnen am 11. September 2026; die Verordnung gilt grundsätzlich ab dem 11. Dezember 2027.</p>
-      <div class="grid3" style="margin-top:24px">
-        <div style="border-top:2px solid #343957;padding-top:14px"><strong>11.09.2026</strong><p class="muted">Beginn der CRA-Meldepflichten für aktiv ausgenutzte Schwachstellen.</p></div>
-        <div style="border-top:2px solid var(--accent);padding-top:14px"><strong>11.12.2027</strong><p class="muted">Der CRA gilt grundsätzlich; SBOMs gehören bei betroffenen Produkten zur technischen Dokumentation.</p></div>
-        <div style="border-top:2px solid #343957;padding-top:14px"><strong>10 Jahre oder länger</strong><p class="muted">Aufbewahrung der technischen Dokumentation nach dem Inverkehrbringen bzw. während einer längeren Supportdauer.</p></div>
-      </div>
-      <p style="font-size:13px;color:#8A8FAD;margin:16px 0 0">Verordnung (EU) 2024/2847. Zusammenfassung ohne Gewähr; keine Rechtsberatung. Anwendbarkeit und Pflichten hängen vom Produkt und der jeweiligen Rolle ab.</p>
+  <section id="how" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 720px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">So funktioniert es</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Ein Schritt in CI. Zehn Jahre belastbare Nachweise.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Erzeugen Sie SBOMs weiterhin mit Syft, Trivy oder cdxgen. Binden Sie Bomkeeper direkt danach ein, damit jedes Release sofort bei der Auslieferung archiviert wird.</p>
     </div>
-  </section>
 
-  <section id="ablauf" class="section" style="background:#0E1126;border-top:1px solid #1E2240;border-bottom:1px solid #1E2240">
-    <div class="wrap">
-      <div style="max-width:760px;margin-bottom:40px">
-        <span class="eyebrow">So funktioniert’s</span>
-        <h2 style="font-size:42px;line-height:1.1;margin:14px 0">Ein zusätzlicher CI-Schritt. Langfristig belastbare Nachweise.</h2>
-        <p class="muted" style="font-size:18px">SBOMs weiter wie gewohnt mit Syft, Trivy oder cdxgen erzeugen. Bomkeeper direkt danach in die Release-Pipeline einbinden.</p>
-      </div>
-      <div class="grid2">
-        <pre class="card" style="overflow:auto;white-space:pre-wrap;font:14px/1.8 'JetBrains Mono',monospace;color:#CDD0E0"><span style="color:#8A8FAD">$</span> bomkeeper push sbom.cdx.json \
+    <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+      <div style="flex: 1 1 480px; min-width: 0; background: #12152B; border: 1px solid #262A45; border-radius: 14px; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #262A45">
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="width: 10px; height: 10px; border-radius: 50%; background: #343957"></span>
+          <span style="margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8A8FAD">.github/workflows/release.yml</span>
+        </div>
+        <pre style="margin: 0; padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8; color: #CDD0E0; white-space: pre-wrap; overflow-x: auto"><span style="color: #8A8FAD">$</span> bomkeeper push sbom.cdx.json \
     --product controller-x200 --release 3.2.1
-✓ SHA-256 über die Originaldatei berechnet
-✓ Signiert und mit Zeitstempel versehen
-✓ Unveränderbar bis zum Ende der Aufbewahrung
-<span style="color:#8A8FAD">→ jederzeit offline prüfbar</span></pre>
-        <ol style="list-style:none;padding:0;margin:0">
-          <li class="card" style="margin-bottom:12px"><strong>01 · Archivieren</strong><p class="muted" style="margin-bottom:0">Original-SBOM zusammen mit Produkt und Release übernehmen – ohne den Dateiinhalt zu verändern.</p></li>
-          <li class="card" style="margin-bottom:12px"><strong>02 · Absichern</strong><p class="muted" style="margin-bottom:0">Hash, Signatur und vertrauenswürdiger RFC-3161-Zeitstempel machen Änderungen erkennbar.</p></li>
-          <li class="card" style="margin-bottom:12px"><strong>03 · Aufbewahren</strong><p class="muted" style="margin-bottom:0">In WORM-Speicher wie S3 Object Lock oder unveränderbaren Azure-Blobs – unter Ihrer Kontrolle oder als Cloud-Service.</p></li>
-          <li class="card"><strong>04 · Prüfen</strong><p class="muted" style="margin-bottom:0">Nachweise lassen sich mit dem Open-Source-Prüfwerkzeug auch ohne Bomkeeper offline verifizieren.</p></li>
-        </ol>
+<span style="color: var(--accent)">✓</span> SHA-256 über die Originaldatei berechnet
+<span style="color: var(--accent)">✓</span> Signiert und mit Zeitstempel versehen (RFC 3161)
+<span style="color: var(--accent)">✓</span> Bis 2037-12-11 unveränderbar im WORM-Speicher abgelegt
+<span style="color: #8A8FAD">→ jederzeit offline prüfen: bomkeeper verify</span></pre>
       </div>
-      <div class="grid3" style="margin-top:16px">
-        <div class="card"><strong style="font:28px 'JetBrains Mono',monospace;color:var(--accent)">10 Jahre</strong><p class="muted" style="margin-bottom:0">und länger aufbewahren</p></div>
-        <div class="card"><strong style="font:28px 'JetBrains Mono',monospace;color:var(--accent)">0</strong><p class="muted" style="margin-bottom:0">Lösch-Endpunkte – auch nicht für Administratoren</p></div>
-        <div class="card"><strong style="font:28px 'JetBrains Mono',monospace;color:var(--accent)">1</strong><p class="muted" style="margin-bottom:0">Schritt in Ihrer Release-Pipeline</p></div>
+
+      <ol style="flex: 1 1 440px; min-width: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">01</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Übermitteln</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Ein Schritt nach Ihrem SBOM-Generator. Bomkeeper übernimmt die Datei bytegenau zusammen mit Produkt und Release.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">02</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Versiegeln</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Ein SHA-256-Hash der Originaldatei, eine Signatur und ein vertrauenswürdiger RFC-3161-Zeitstempel.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">03</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Aufbewahren</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Bis zum Ende der Aufbewahrungsfrist unveränderbar gespeichert – mit S3 Object Lock oder unveränderbaren Azure-Blobs. Niemand kann die Daten ändern oder löschen.</span>
+          </div>
+        </li>
+        <li style="display: flex; gap: 20px; padding: 20px 0; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--accent); padding-top: 3px">04</span>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 19px; font-weight: 600">Prüfen</span>
+            <span style="font-size: 15px; line-height: 1.6; color: #A3A8C3">Jeder kann ein Paket mit dem Open-Source-Prüfwerkzeug offline verifizieren – auch in zehn Jahren und ohne uns.</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">10 Jahre</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">Mindestaufbewahrungsfrist für SBOMs gemäß CRA</span>
+      </div>
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">0</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">Lösch-Endpunkte. Auch nicht für Administratoren.</span>
+      </div>
+      <div style="border: 1px solid #262A45; background: #0E1126; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; color: var(--accent)">1</span>
+        <span style="font-size: 15px; color: #A3A8C3; line-height: 1.5">Schritt in Ihrer Pipeline</span>
       </div>
     </div>
   </section>
 
-  <section id="betrieb" class="wrap section">
-    <div style="max-width:760px;margin-bottom:40px">
-      <span class="eyebrow">Unter Ihrer Kontrolle</span>
-      <h2 style="font-size:42px;line-height:1.1;margin:14px 0">Ihre Ablage. Ihre Nachweise. Ihr Ausstieg.</h2>
-      <p class="muted" style="font-size:18px">Betreiben Sie Bomkeeper selbst oder nutzen Sie den verwalteten Dienst. Die Evidenz bleibt exportierbar und mit offenen Werkzeugen lesbar und prüfbar.</p>
+  <section id="dependency-track" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Bomkeeper + Dependency-Track</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Dependency-Track für heute. Bomkeeper für den Nachweis.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Dependency-Track analysiert, was Sie aktuell einsetzen, und entfernt alte Versionen, um schnell zu bleiben. Bomkeeper bewahrt jedes ausgelieferte Release auf und übermittelt es bei Bedarf erneut an Dependency-Track.</p>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px">
+        <div style="flex: 1 1 340px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Analyse</span>
+            <span style="font-size: 22px; font-weight: 700">OWASP Dependency-Track</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Kontinuierliche Überwachung von Schwachstellen und Richtlinien</li>
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Fokus auf aktuelle, aktive Versionen</li>
+            <li style="display: flex; gap: 10px"><span style="color: #8A8FAD">—</span>Inaktive Versionen werden nach Ablauf der Aufbewahrungsfrist entfernt</li>
+          </ul>
+        </div>
+
+        <div style="flex: 0 1 180px; min-width: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center">
+          <svg width="48" height="24" viewBox="0 0 48 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M2 8h40M36 2l6 6-6 6M46 16H6M12 10l-6 6 6 6"></path></svg>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; color: #A3A8C3">Bei Übermittlung weiterleiten<br>jedes Release erneut einspielen</span>
+        </div>
+
+        <div style="flex: 1 1 340px; min-width: 0; border: 1px solid var(--accent); background: #12152B; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent)">Nachweis</span>
+            <span style="font-size: 22px; font-weight: 700">Bomkeeper</span>
+          </div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Jedes ausgelieferte Release – zehn Jahre und länger</li>
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Originaldatei versiegelt und gesperrt</li>
+            <li style="display: flex; gap: 10px"><span style="color: var(--accent)">✓</span>Dependency-Track jederzeit aus dem Archiv wiederherstellen</li>
+          </ul>
+        </div>
+      </div>
+      <span style="font-size: 13px; color: #8A8FAD">Bomkeeper ist ein unabhängiges Projekt und weder mit der OWASP Foundation verbunden noch von ihr unterstützt.</span>
     </div>
-    <div class="grid2">
-      <article class="card"><h3 style="margin-top:0">Open Source</h3><p class="muted">Kostenloser CLI-Kern und Speicheradapter für S3 Object Lock und unveränderbare Azure-Blobs.</p><a href="https://github.com/florianlenz96/Bomkeeper">Quellcode auf GitHub</a></article>
-      <article class="card"><h3 style="margin-top:0">Server und Cloud</h3><p class="muted">Produkt- und Releaseverwaltung, Suche über ausgelieferte Versionen, Dependency-Track-Integration und zeitlich begrenzte Audit-Freigaben. Cloud-Datenhaltung in EU-Rechenzentren oder in Ihrem eigenen Speicher.</p><a href="#interesse">Gespräch anfragen</a></article>
-    </div>
-    <p class="muted" style="margin-top:24px"><strong style="color:#E9EAF2">Exit-Garantie:</strong> Wenn Bomkeeper nicht mehr verfügbar ist, bleibt Ihre Evidenz es. Das offene Bundle-Format und der Verifier machen die Nachweise unabhängig prüfbar.</p>
   </section>
 
-  <section id="interesse" class="section" style="background:#0E1126;border-top:1px solid #1E2240;border-bottom:1px solid #1E2240">
-    <div class="wrap" style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
-      <div style="flex:1 1 380px">
-        <span class="eyebrow">Frühzugang</span>
-        <h2 style="font-size:42px;line-height:1.1;margin:14px 0">Machen Sie Ihre nächsten Releases nachvollziehbar.</h2>
-        <p class="muted" style="font-size:18px">Der Open-Source-Kern ist für Anfang 2027 geplant, eine Cloud-Beta mit Designpartnern für Frühjahr 2027. Melden Sie sich, wenn Sie die Anforderungen Ihres Unternehmens einbringen möchten.</p>
+  <section id="open-source" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Offener Kern</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Offen, wo Vertrauen zählt.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Alles, was Sie benötigen, um Ihre Nachweise ohne uns zu lesen und zu prüfen, ist Open Source. Für den zusätzlichen Komfort zahlen Sie.</p>
+    </div>
+
+    <div class="g2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="font-size: 22px; font-weight: 700">Open Source</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 10px">Apache-2.0</span>
+        </div>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>Format und Spezifikation der Nachweispakete</li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span><span>CLI: <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">push</code>, <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">get</code>, <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px">verify</code></span></li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>Speicheradapter für S3 Object Lock und unveränderbare Azure-Blobs</li>
+          <li style="display: flex; gap: 12px"><span style="color: var(--accent)">✓</span>GitHub Action für Ihren Release-Workflow</li>
+        </ul>
       </div>
-      <form action="/api/waitlist" method="post" class="card" style="flex:1 1 420px;display:flex;flex-direction:column;gap:18px">
-        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden"><label for="wl-website">Dieses Feld leer lassen</label><input id="wl-website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
-        <label for="wl-email">Geschäftliche E-Mail-Adresse</label>
-        <input id="wl-email" type="email" name="email" required maxlength="254" autocomplete="email" placeholder="name@unternehmen.de" style="background:#0A0C1D;border:1px solid #343957;border-radius:10px;color:#E9EAF2;font:16px 'Instrument Sans',sans-serif;padding:12px 14px;min-height:48px">
-        <label for="wl-company">Unternehmen <span class="muted">(optional)</span></label>
-        <input id="wl-company" type="text" name="company" maxlength="200" autocomplete="organization" style="background:#0A0C1D;border:1px solid #343957;border-radius:10px;color:#E9EAF2;font:16px 'Instrument Sans',sans-serif;padding:12px 14px;min-height:48px">
-        <label for="wl-type">Was liefern Sie aus?</label>
-        <select id="wl-type" name="type" style="background:#0A0C1D;border:1px solid #343957;border-radius:10px;color:#E9EAF2;font:16px 'Instrument Sans',sans-serif;padding:12px 14px;min-height:48px">
-          <option value="Devices or embedded software">Geräte oder Embedded-Software</option>
-          <option value="Industrial or machine software">Industrie- oder Maschinensoftware</option>
-          <option value="On-premises software">On-Premises-Software</option>
-          <option value="SaaS">SaaS</option>
-          <option value="Something else">Sonstiges</option>
-        </select>
-        <label style="display:flex;align-items:flex-start;gap:12px;color:#CDD0E0"><input type="checkbox" name="design_partner" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0">Ich möchte Designpartner werden und frühe Versionen testen.</label>
-        <label style="display:flex;align-items:flex-start;gap:12px;color:#CDD0E0"><input type="checkbox" name="consent" value="yes" required style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0">Ich möchte per E-Mail Informationen zu Frühzugang und Produkt erhalten. Ich kann mich jederzeit abmelden.</label>
-        <button type="submit" class="button" style="border:0;font:600 16px 'Instrument Sans',sans-serif;cursor:pointer">Interesse vormerken</button>
-        <span style="font-size:13px;color:#8A8FAD">Bitte bestätigen Sie Ihre Anmeldung innerhalb von 48 Stunden über den Link in Ihrer E-Mail. Wir verwenden Ihre Angaben nur für die Bomkeeper-Warteliste. <a href="https://florian-lenz.io/datenschutz" style="color:#A3A8C3">Datenschutzhinweise</a>.</span>
+      <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <span style="font-size: 22px; font-weight: 700">Bomkeeper-Server</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3A8C3; border: 1px solid #343957; border-radius: 999px; padding: 4px 10px">Kommerziell</span>
+        </div>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Produkte, Versionen und Releases mit Inverkehrbringungsdaten</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Eine Komponente über alle ausgelieferten Releases hinweg suchen</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Weiterleitung an Dependency-Track und erneute Übermittlung</li>
+          <li style="display: flex; gap: 12px"><span style="color: #A3A8C3">+</span>Zeitlich begrenzte Audit-Freigaben mit manipulationssicherem Zugriffsprotokoll</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; border: 1px dashed #343957; border-radius: 14px; padding: 24px 28px">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg>
+      <p style="margin: 0; flex: 1 1 400px; font-size: 16px; line-height: 1.55; color: #CDD0E0"><strong style="color: #E9EAF2">Ausstiegsgarantie:</strong> Sollte Bomkeeper einmal nicht mehr verfügbar sein, bleiben Ihre Nachweise erhalten. Jedes Paket bleibt mit den Open-Source-Werkzeugen lesbar und prüfbar.</p>
+    </div>
+  </section>
+
+  <section id="pricing" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 56px">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Selbstbetrieb oder Cloud</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Ihr Speicher oder unserer. Ihre Nachweise bleiben.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Betreiben Sie Bomkeeper in Ihrem eigenen Cloud-Konto oder überlassen Sie den Betrieb uns – mit den Paketen in Ihrem Bucket oder in EU-Rechenzentren.</p>
+      </div>
+
+      <div class="g3" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+        <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 20px; font-weight: 700">Open Source</span>
+            <span style="font-size: 15px; color: #A3A8C3">CLI und Ihr eigener gesperrter Bucket</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em">Kostenlos</span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Aus CI archivieren und prüfen</li>
+            <li>S3- oder Azure-WORM-Speicher</li>
+            <li>Community-Support auf GitHub</li>
+          </ul>
+          <a href="https://github.com/florianlenz96/Bomkeeper" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Auf GitHub markieren</a>
+        </div>
+        <div style="border: 2px solid var(--accent); background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap">
+              <span style="font-size: 20px; font-weight: 700">Cloud</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #0A0C1D; background: var(--accent); border-radius: 999px; padding: 3px 10px">Designpartner gesucht</span>
+            </div>
+            <span style="font-size: 15px; color: #A3A8C3">Wir betreiben es, Sie liefern aus</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em"><span style="font-size: 16px; font-weight: 500; color: #A3A8C3"> / Monat</span></span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Alles aus dem Bomkeeper-Server</li>
+            <li>Eigener Speicher oder Hosting in der EU</li>
+            <li>SSO, Rollen und Audit-Freigaben</li>
+            <li>Jederzeit vollständiger Export</li>
+          </ul>
+          <a href="#waitlist" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Auf die Warteliste</a>
+        </div>
+        <div style="border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 20px; font-weight: 700">Selbstbetriebener Server</span>
+            <span style="font-size: 15px; color: #A3A8C3">In Ihrer Azure-, AWS- oder Kubernetes-Umgebung</span>
+          </div>
+          <span style="font-size: 36px; font-weight: 700; letter-spacing: -0.02em">Jahreslizenz</span>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; flex-grow: 1">
+            <li>Alles aus dem Bomkeeper-Server</li>
+            <li>Deployment-Vorlagen für Ihre Cloud</li>
+            <li>Updates und Support mit SLA</li>
+          </ul>
+          <a href="#consulting" style="border: 1px solid #343957; color: #E9EAF2; text-decoration: none; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Sprechen Sie mit uns</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="consulting" style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start">
+    <div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Beratung</span>
+      <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Ein Tresor ist nur ein Teil. Wir unterstützen Sie auch bei den übrigen CRA-Anforderungen.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">SBOMs zu archivieren ist nur eine Pflicht. Auch Schwachstellenmanagement, Meldeprozesse sowie die Absicherung von Cloud und Pipelines gehören dazu.</p>
+      <div style="display: flex; align-items: center; gap: 16px; padding-top: 8px">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #1E2240; border: 1px solid #343957; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; color: var(--accent); flex-shrink: 0">FL</div>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 17px; font-weight: 600">Florian Lenz</span>
+          <span style="font-size: 15px; line-height: 1.5; color: #A3A8C3">Entwickler von Bomkeeper · Microsoft Azure MVP · unabhängiger Cloud- und Security-Berater aus Köln</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex: 1 1 460px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #8A8FAD">Paket mit festem Leistungsumfang</span>
+        <span style="font-size: 26px; font-weight: 700">CRA-Nachweise in 5 Tagen</span>
+      </div>
+      <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 15px; line-height: 1.5; color: #CDD0E0">
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">1</span>Bestandsaufnahme Ihrer Produkte, Releases und Build-Pipelines</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">2</span>Einrichtung von Bomkeeper in Ihrem eigenen Cloud-Konto</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">3</span>SBOM-Erstellung und -Archivierung in CI integrieren</li>
+        <li style="display: flex; gap: 14px"><span style="font-family: 'JetBrains Mono', monospace; color: var(--accent)">4</span>Bericht mit Lücken, Risiken und nächsten Schritten</li>
+      </ol>
+      <a href="mailto:florian.lenz@neocentric.de?subject=Bomkeeper%20intro%20call" style="background: var(--accent); color: #0A0C1D; text-decoration: none; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center">Kostenloses Erstgespräch vereinbaren</a>
+      <span style="font-size: 13px; color: #8A8FAD">Technische und prozessuale Unterstützung. Keine Rechtsberatung.</span>
+    </div>
+  </section>
+
+  <section id="waitlist" style="background: #0E1126; border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 112px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start">
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent)">Frühzugang</span>
+        <h2 class="h2" style="margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700">Seien Sie vor Dezember 2027 bereit.</h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #A3A8C3">Der Open-Source-Kern ist für Anfang 2027 geplant, eine Cloud-Beta mit Designpartnern für Frühjahr 2027. Tragen Sie sich ein und gestalten Sie mit, was zuerst entwickelt wird.</p>
+      </div>
+
+      <form action="/api/waitlist" method="post" style="flex: 1 1 460px; min-width: 0; border: 1px solid #262A45; background: #12152B; border-radius: 14px; padding: 32px; display: flex; flex-direction: column; gap: 20px">
+        <div aria-hidden="true" style="position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden">
+          <label for="wl-website">Dieses Feld leer lassen</label>
+          <input id="wl-website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-email" style="font-size: 14px; font-weight: 600">Geschäftliche E-Mail-Adresse</label>
+          <input id="wl-email" type="email" name="email" required="" maxlength="254" autocomplete="email" placeholder="you@company.com" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-company" style="font-size: 14px; font-weight: 600">Unternehmen <span style="font-weight: 400; color: #8A8FAD">(optional)</span></label>
+          <input id="wl-company" type="text" name="company" maxlength="200" autocomplete="organization" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="wl-type" style="font-size: 14px; font-weight: 600">Was liefern Sie aus?</label>
+          <select id="wl-type" name="type" style="background: #0A0C1D; border: 1px solid #343957; border-radius: 10px; color: #E9EAF2; font-family: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; box-sizing: border-box">
+            <option value="Devices or embedded software">Geräte oder Embedded-Software</option>
+            <option value="Industrial or machine software">Industrie- oder Maschinensoftware</option>
+            <option value="On-premises software">On-Premises-Software</option>
+            <option value="SaaS">SaaS</option>
+            <option value="Something else">Sonstiges</option>
+          </select>
+        </div>
+        <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; cursor: pointer">
+          <input type="checkbox" name="design_partner" style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0">
+          Ich möchte Designpartner werden und Feedback zu frühen Versionen geben.
+        </label>
+        <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; color: #CDD0E0; cursor: pointer">
+          <input type="checkbox" name="consent" value="yes" required style="width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0">
+          Ich möchte per E-Mail Informationen zum Frühzugang und Produktneuigkeiten von Bomkeeper erhalten. Ich kann mich jederzeit abmelden.
+        </label>
+        <button type="submit" style="background: var(--accent); color: #0A0C1D; border: none; font-family: inherit; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 10px; min-height: 48px; cursor: pointer">Auf die Warteliste</button>
+        <span style="font-size: 13px; line-height: 1.5; color: #8A8FAD">Bitte bestätigen Sie Ihre Anmeldung innerhalb von 48 Stunden über den Link in Ihrer E-Mail. Wir verwenden Ihre Angaben ausschließlich für die Bomkeeper-Warteliste. Lesen Sie unsere <a href="https://florian-lenz.io/datenschutz" style="color: #A3A8C3">Datenschutzhinweise</a>.</span>
       </form>
     </div>
   </section>
 
-  <section class="wrap section" style="max-width:900px">
-    <h2 style="font-size:38px;text-align:center;margin:0 0 28px">Häufige Fragen</h2>
-    <details style="border-top:1px solid #1E2240;padding:20px 0"><summary style="font-weight:600;cursor:pointer">Macht Bomkeeper unser Unternehmen CRA-konform?</summary><p class="muted">Nein. Kein einzelnes Werkzeug kann das. Bomkeeper unterstützt die Aufbewahrung und den Nachweis von SBOMs. Sichere Entwicklung, Schwachstellenmanagement und Meldeprozesse bleiben ebenfalls erforderlich. Die konkreten Pflichten hängen von Produkt und Rolle ab.</p></details>
-    <details style="border-top:1px solid #1E2240;padding:20px 0"><summary style="font-weight:600;cursor:pointer">Wir nutzen bereits Dependency-Track. Warum zusätzlich Bomkeeper?</summary><p class="muted">Dependency-Track analysiert den aktuellen Stand. Bomkeeper bewahrt die unveränderten Originale ausgelieferter Versionen auf und kann sie später erneut an Dependency-Track übermitteln.</p></details>
-    <details style="border-top:1px solid #1E2240;padding:20px 0"><summary style="font-weight:600;cursor:pointer">Wo werden unsere Daten gespeichert?</summary><p class="muted">In Ihrem eigenen S3- oder Azure-Konto mit aktivierter Unveränderbarkeit oder – beim Cloud-Service – in EU-Rechenzentren.</p></details>
-    <details style="border-top:1px solid #1E2240;border-bottom:1px solid #1E2240;padding:20px 0"><summary style="font-weight:600;cursor:pointer">Was passiert, wenn Bomkeeper eingestellt wird?</summary><p class="muted">Bundle-Format und Prüfwerkzeug sind Open Source. Ihre Nachweise bleiben auch ohne Bomkeeper lesbar und verifizierbar.</p></details>
+  <section id="faq" style="max-width: 880px; margin: 0 auto; padding: 112px 32px; display: flex; flex-direction: column; gap: 40px">
+    <h2 class="h2" style="margin: 0; font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; text-align: center">Häufige Fragen</h2>
+    <div style="display: flex; flex-direction: column">
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Macht Bomkeeper unser Unternehmen CRA-konform?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">Nein, kein Werkzeug kann das. Bomkeeper unterstützt die Aufbewahrungspflichten des CRA für SBOMs und technische Dokumentation. Zur Compliance gehören auch sichere Entwicklung, Schwachstellenmanagement und Meldeprozesse.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Wir nutzen bereits Dependency-Track. Warum zusätzlich Bomkeeper?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">Dependency-Track ist für die Analyse des aktuellen Stands ausgelegt. Bomkeeper bewahrt die unveränderten Originale jedes ausgelieferten Releases zehn Jahre lang auf, weist ihre Unverändertheit nach und kann sie erneut an Dependency-Track übermitteln.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Was passiert, wenn Bomkeeper eingestellt wird?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">Das Paketformat und das Prüfwerkzeug sind Open Source. Ihre Nachweise bleiben auch ohne uns lesbar und prüfbar – insbesondere, wenn sie in Ihrem eigenen Speicher liegen.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Wo werden unsere Daten gespeichert?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">In Ihrem eigenen S3- oder Azure-Konto mit aktiviertem Object Lock oder bei Nutzung des Cloud-Dienstes in EU-Rechenzentren.</p>
+      </details>
+      <details style="border-top: 1px solid #1E2240; border-bottom: 1px solid #1E2240; padding: 22px 0">
+        <summary style="font-size: 18px; font-weight: 600; cursor: pointer">Welche SBOM-Formate werden unterstützt?</summary>
+        <p style="margin: 14px 0 0; font-size: 16px; line-height: 1.65; color: #A3A8C3">CycloneDX und SPDX. Bomkeeper speichert die Datei bytegenau so, wie Ihr Generator sie erstellt hat.</p>
+      </details>
+    </div>
   </section>
-</main>
 
-<footer style="border-top:1px solid #1E2240">
-  <div class="wrap" style="padding-top:36px;padding-bottom:36px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px">
-    <div><strong>bomkeeper.dev</strong><p class="muted" style="max-width:360px">Langfristige, prüfbare Nachweise für Software-Stücklisten.</p></div>
-    <nav aria-label="Rechtliches" style="display:flex;flex-wrap:wrap;gap:24px"><a href="https://florian-lenz.io/impressum">Impressum</a><a href="https://florian-lenz.io/datenschutz">Datenschutz</a><a href="mailto:florian.lenz@neocentric.de">Kontakt</a><a href="/">English</a></nav>
-  </div>
-  <p class="wrap" style="font-size:13px;color:#8A8FAD;padding-bottom:24px">© 2026 Florian Lenz · bomkeeper.dev. Nicht mit OWASP verbunden oder von OWASP unterstützt.</p>
-</footer>
+  <footer style="border-top: 1px solid #1E2240">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 56px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px">
+      <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 14px">
+        <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #E9EAF2">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="5"></rect><path d="M9 10h10M9 14h10M9 18h6"></path></svg>
+          <span style="font-weight: 700; font-size: 17px">bomkeeper</span>
+        </a>
+        <span style="font-size: 14px; line-height: 1.6; color: #8A8FAD; max-width: 300px">Der Nachweis-Tresor für Software-Stücklisten.</span>
+      </div>
+      <nav aria-label="Fußzeile" style="display: flex; flex-wrap: wrap; gap: 56px; font-size: 14px">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Produkt</span>
+          <a href="#how" style="color: #A3A8C3; text-decoration: none">So funktioniert es</a>
+          <a href="#open-source" style="color: #A3A8C3; text-decoration: none">Open Source</a>
+          <a href="#pricing" style="color: #A3A8C3; text-decoration: none">Selbstbetrieb oder Cloud</a>
+          <a href="https://github.com/florianlenz96/Bomkeeper" style="color: #A3A8C3; text-decoration: none">GitHub</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Unternehmen</span>
+          <a href="#consulting" style="color: #A3A8C3; text-decoration: none">Beratung</a>
+          <a href="mailto:florian.lenz@neocentric.de" style="color: #A3A8C3; text-decoration: none">Kontakt</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <span style="font-weight: 600; color: #E9EAF2">Rechtliches</span>
+          <a href="https://florian-lenz.io/impressum" style="color: #A3A8C3; text-decoration: none">Impressum</a>
+          <a href="https://florian-lenz.io/datenschutz" style="color: #A3A8C3; text-decoration: none">Datenschutz</a>
+        </div>
+      </nav>
+    </div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px 32px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: #8A8FAD; border-top: 1px solid #1E2240">
+      <span>© 2026 Florian Lenz · bomkeeper.dev</span>
+      <span>Nicht mit OWASP verbunden. CycloneDX und Dependency-Track sind OWASP-Projekte.</span>
+    </div>
+  </footer>
+</div>
 </body>
 </html>
