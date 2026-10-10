@@ -76,7 +76,6 @@ jobs:
           STATE_STORAGE_ACCOUNT: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
           STATE_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
           STATE_KEY: ${{ vars.TF_STATE_KEY }}
-          TFVARS_JSON: ${{ secrets.TF_VARS_JSON }}
         run: |
           set -euo pipefail
           : "${ARM_CLIENT_ID:?Set AZURE_CLIENT_ID}"
@@ -86,9 +85,6 @@ jobs:
           : "${STATE_STORAGE_ACCOUNT:?Set TF_STATE_STORAGE_ACCOUNT}"
           : "${STATE_CONTAINER:?Set TF_STATE_CONTAINER}"
           : "${STATE_KEY:?Set TF_STATE_KEY}"
-          : "${TFVARS_JSON:?Set TF_VARS_JSON}"
-          umask 077
-          printf '%s' "$TFVARS_JSON" > deployment.auto.tfvars.json
           terraform init -input=false -lockfile=readonly \
             -backend-config="resource_group_name=$STATE_RESOURCE_GROUP" \
             -backend-config="storage_account_name=$STATE_STORAGE_ACCOUNT" \
@@ -97,7 +93,8 @@ jobs:
       - name: Provision infrastructure
         working-directory: infrastructure
         run: |
-          terraform plan -out="$RUNNER_TEMP/deployment.tfplan"
+          umask 077
+          terraform plan -var-file=terraform.tfvars -out="$RUNNER_TEMP/deployment.tfplan"
           terraform apply -input=false "$RUNNER_TEMP/deployment.tfplan"
       - name: Get deployment target and token from provisioned infrastructure
         id: target
@@ -145,4 +142,4 @@ jobs:
           exit 1
       - name: Remove local deployment secrets
         if: always()
-        run: rm -f infrastructure/deployment.auto.tfvars.json "$RUNNER_TEMP/deployment.tfplan"
+        run: rm -f "$RUNNER_TEMP/deployment.tfplan"

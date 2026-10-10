@@ -68,6 +68,7 @@ Remove the obsolete `static_web_app_default_hostname` input from old variable fi
 - `locals.tf` computed values/app settings
 - `main.tf` resources
 - `outputs.tf` useful outputs and verification commands
+- `terraform.tfvars` versioned, non-secret production inputs used by CI and local Terraform
 - `terraform.tfvars.example` sample values
 
 ---
@@ -76,12 +77,11 @@ Remove the obsolete `static_web_app_default_hostname` input from old variable fi
 
 This configuration is designed to adopt existing critical resources and protect them with `prevent_destroy`.
 
-1) Create your variables file:
+1) Review the versioned production variables file:
 
 ```bash
 cd infrastructure
-cp terraform.tfvars.example terraform.tfvars
-# Replace the placeholder subscription_id in terraform.tfvars with the target subscription ID.
+# Review terraform.tfvars before planning; do not overwrite it with the example.
 ```
 
 2) Set shell vars for import commands:
@@ -123,8 +123,11 @@ the existing group's Azure location to avoid a replacement plan. `prevent_destro
 protects the group, but is not a substitute for an Azure delete lock on the group
 and state account. Review any tag changes in the first plan.
 
-Use unique resource names and a globally available waitlist storage account name. Set
-the real subscription ID; the all-zero value in the example is a placeholder.
+Use unique resource names and a globally available waitlist storage account name.
+The versioned `terraform.tfvars` omits `subscription_id`: CI uses
+`AZURE_SUBSCRIPTION_ID` via `ARM_SUBSCRIPTION_ID`, and local operations use
+`ARM_SUBSCRIPTION_ID` or the selected Azure CLI subscription. The all-zero
+subscription ID in the example is only a placeholder, not a deployment value.
 Skip manual imports for genuinely new website resources, but never use a new empty state to
 manage resources already tracked elsewhere.
 
@@ -168,11 +171,16 @@ SWA token. An Azure administrator must first:
    `TF_STATE_KEY` (for example `website-production.tfstate`).
    Set `TF_STATE_RESOURCE_GROUP=bomkeeper-web` and `TF_STATE_STORAGE_ACCOUNT`
    to the name of your manually created account.
-5. Add environment secret `TF_VARS_JSON`: a JSON object with inputs matching
-   `terraform.tfvars.example`. Begin with both domain management and email
-   verification disabled. Do not include Azure credentials.
+5. Review and edit the versioned `infrastructure/terraform.tfvars`, then commit
+   the changes. The workflow plans with this file and applies the saved plan;
+   no `TF_VARS_JSON` secret is required, and an existing one can be deleted.
+   Begin with both domain management and email verification disabled.
+   Never put credentials, connection strings or tokens in this file.
+   Only this production tfvars file is allowed by `.gitignore`; other local
+   tfvars files remain ignored. Do not add `*.auto.tfvars` files to CI, since
+   Terraform also loads those automatically.
    Set `resource_group_name` to `bomkeeper-web` and `location` to the group's
-   actual location. Old secrets containing `rg-bomkeeper-web` must be updated.
+   actual location. Old configurations containing `rg-bomkeeper-web` must be updated.
    If Terraform already manages a different group with deployed resources, stop:
    do not rename that group in state or apply a replacement plan. Existing
    resources need a separately reviewed migration.
@@ -200,8 +208,9 @@ validate and receive no Azure credentials. Never publish state/plans as artifact
 If publishing fails after apply, rerun the workflow against the same state.
 
 Stage 1 publishes a working website/API but deliberately returns 503 for signups.
-Complete the DNS/email stages below, update `TF_VARS_JSON` with the verified
-flags, and run the workflow again before launching the waitlist.
+Complete the DNS/email stages below, update the verified flags in
+`infrastructure/terraform.tfvars`, and push the changes to `main` before
+launching the waitlist.
 
 ---
 
