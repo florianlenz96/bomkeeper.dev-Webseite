@@ -4,6 +4,7 @@ import { EmailClient } from "@azure/communication-email";
 import { WaitlistStore } from "./storage.js";
 import { createHandlers } from "./waitlist.js";
 import { loadConfig } from "./config.js";
+import { submitEmail } from "./email.js";
 
 let handlers;
 function getHandlers() {
@@ -17,10 +18,7 @@ function getHandlers() {
       store: new WaitlistStore(table, limits),
       sendEmail: async (message) => {
         if (!email) throw new Error("Email sending is disabled");
-        const abortSignal = AbortSignal.timeout(20_000);
-        const poller = await email.beginSend(message, { updateIntervalInMs: 1000, abortSignal });
-        const result = await poller.pollUntilDone({ abortSignal });
-        if (result.status !== "Succeeded") throw new Error("Email submission did not succeed");
+        await submitEmail(email, message);
       },
     });
   }

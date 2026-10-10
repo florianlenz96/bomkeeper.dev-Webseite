@@ -1,15 +1,20 @@
 # Bomkeeper waitlist API
 
 Node.js 22 Azure Functions, deployed as the managed API of the existing Static
-Web App. The website uses ordinary HTML forms; no JavaScript or external form
-provider is needed.
+Web App. The website progressively enhances ordinary HTML forms with asynchronous
+submission and inline status messages in English and German. Without JavaScript,
+the forms still work and show an API response page; no external form provider is needed.
 
 ## Flow
 
 1. `POST /api/waitlist` validates the form and its explicit consent. It stores a
    pending signup in private Table Storage and submits a confirmation email via
-   Azure Communication Services.
-2. The email contains a signed confirmation link valid for 48 hours. Opening
+   Azure Communication Services. The API waits only for ACS to accept the queued
+   send, not for email-completion polling. Delivery continues at ACS independently
+   of the HTTP request; no unawaited work runs inside the function. Clients requesting
+   `Accept: application/json` receive a JSON status message instead of an HTML page.
+2. The branded HTML email includes a plain-text fallback and a signed confirmation
+   link valid for 48 hours. Opening
    the link immediately confirms the signup, without a second button click.
    Email link scanners that open the link can also confirm a signup.
 3. `GET /api/waitlist/confirm` records confirmation time. Existing POST links
@@ -32,10 +37,13 @@ global email budget help limit abuse. These are not a replacement for a CAPTCHA
 or edge rate limiting if the form attracts targeted attacks.
 
 The hourly budget defaults to 20 attempted emails across all API instances and
-resets at each UTC hour. Failed attempts count towards this budget; failed sends
-can be retried after one minute. An HTTP 503 or 429 is shown on failure rather
-than claiming that an email was sent. Duplicate signups use the same generic
-response to avoid exposing membership.
+resets at each UTC hour. Failed attempts count towards this budget; rejected
+email submissions can be retried after one minute. An HTTP 503 or 429 is shown
+on submission failure rather than claiming that an email was queued. A successful
+response means ACS accepted the operation, not that delivery completed. Monitor
+post-acceptance failures and delivery status through ACS diagnostics; these cannot
+be reported in the already-completed HTTP response and retain the one-hour cooldown.
+Duplicate signups use the same generic response to avoid exposing membership.
 
 ## Settings
 
