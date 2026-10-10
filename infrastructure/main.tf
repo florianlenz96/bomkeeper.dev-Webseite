@@ -85,7 +85,6 @@ resource "azurerm_static_web_app" "site" {
   location            = azurerm_resource_group.web.location
   sku_tier            = var.static_web_app_sku_tier
   sku_size            = var.static_web_app_sku_size
-  app_settings        = local.static_web_app_settings
   tags                = var.tags
 
   depends_on = [
@@ -97,10 +96,27 @@ resource "azurerm_static_web_app" "site" {
   lifecycle {
     prevent_destroy = true
     ignore_changes = [
+      app_settings,
       repository_branch,
       repository_url,
     ]
   }
+}
+
+resource "azapi_update_resource" "site_settings" {
+  type        = "Microsoft.Web/staticSites/config@2022-03-01"
+  resource_id = "${azurerm_static_web_app.site.id}/config/appsettings"
+  # Configure after creation so the generated hostname does not cause a cycle.
+  body = sensitive({
+    properties = local.static_web_app_settings
+  })
+  response_export_values = []
+
+  depends_on = [
+    azurerm_storage_table.waitlist,
+    azurerm_storage_table.waitlist_limits,
+    azurerm_email_communication_service_domain_sender_username.waitlist,
+  ]
 }
 
 resource "azurerm_static_web_app_custom_domain" "domains" {

@@ -1,6 +1,8 @@
 terraform {
   required_version = ">= 1.5.0"
 
+  backend "azurerm" {}
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -9,6 +11,10 @@ terraform {
     random = {
       source  = "hashicorp/random"
       version = ">= 3.6, < 4.0"
+    }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.13"
     }
   }
 }

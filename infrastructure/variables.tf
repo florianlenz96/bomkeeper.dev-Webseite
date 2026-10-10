@@ -22,12 +22,6 @@ variable "static_web_app_name" {
   default     = "bomkeeper-web"
 }
 
-variable "static_web_app_default_hostname" {
-  description = "Static Web App default host name used in WAITLIST_ALLOWED_ORIGINS."
-  type        = string
-  default     = "kind-beach-02c64fb03.3.azurestaticapps.net"
-}
-
 variable "static_web_app_sku_tier" {
   description = "Static Web App SKU tier."
   type        = string
@@ -52,7 +46,7 @@ variable "static_web_app_custom_domains" {
 variable "manage_static_web_app_custom_domains" {
   description = "If false, do not manage static web app custom domains (useful for fresh deployments before DNS is ready)."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "storage_account_name" {

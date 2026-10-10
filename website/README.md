@@ -7,7 +7,7 @@ Die Infrastruktur inklusive der bestehenden Static Web App wird unter [`../infra
 | Datei | Zweck |
 | --- | --- |
 | `index.html` | Landingpage |
-| `imprint.html`, `privacy.html` | **Vorlagen** für Impressum und Datenschutz – vor dem Livegang ausfüllen und prüfen lassen |
+| Externe Impressums-/Datenschutzlinks | Vor dem Livegang auf Erreichbarkeit und passende Inhalte prüfen |
 | `404.html` | Fehlerseite |
 | `staticwebapp.config.json` | Azure Static Web Apps: Sicherheits-Header, Caching, 404 |
 | `favicon.svg`, `robots.txt`, `sitemap.xml` | Icon und Suchmaschinen |
@@ -20,7 +20,6 @@ Suche nach `[` in allen HTML-Dateien:
 - `[PRICE]` – Preis im Cloud-Tarif
 - `florian.lenz@neocentric.de` – Kontaktadresse
 - Die verlinkte Datenschutzerklaerung um Warteliste, Azure-Dienste, Einwilligung und Loeschfristen erweitern.
-- Platzhalter in `imprint.html` und `privacy.html`
 
 ## Empfohlen: Azure Static Web Apps (Free)
 
@@ -46,9 +45,10 @@ Formular keine Anmeldungen entgegen.
 
 ### Variante B: automatisch per GitHub Actions
 
-1. `website/`, `api/` und `.github/` muessen im Repo-Root liegen; Infrastruktur vorher mit Terraform bereitstellen.
-2. Den Deployment-Token der Static Web App als Repository-Secret `AZURE_STATIC_WEB_APPS_API_TOKEN` hinterlegen.
-3. Jeder Push auf `main`, der Website, API oder Workflow aendert, testet die API und deployt Website und API.
+1. OIDC-Zugang, geschuetzten Terraform-Blob-State und GitHub-Environment `production` gemaess Infrastruktur-README einrichten.
+2. Variablen und `TF_VARS_JSON` konfigurieren; der Deployment-Token wird automatisch aus der bereitgestellten Static Web App gelesen.
+3. Jeder relevante Push auf `main` testet und validiert, provisioniert die Infrastruktur und veroeffentlicht Website plus API mit anschliessendem Smoke-Test. Pull Requests validieren nur.
+4. DNS und E-Mail-Domain verifizieren und die Flags in `TF_VARS_JSON` aktualisieren. Bis dahin bleibt die Anmeldung absichtlich deaktiviert.
 
 ### Eigene Domain bomkeeper.dev
 

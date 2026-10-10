@@ -5,11 +5,10 @@ locals {
 
   waitlist_allowed_origins = join(
     ",",
-    [
-      "https://bomkeeper.dev",
-      "https://www.bomkeeper.dev",
-      "https://${var.static_web_app_default_hostname}",
-    ]
+    distinct(concat(
+      [var.waitlist_base_url, "https://${azurerm_static_web_app.site.default_host_name}"],
+      [for domain in keys(var.static_web_app_custom_domains) : "https://${domain}"],
+    ))
   )
 
   static_web_app_settings = {
