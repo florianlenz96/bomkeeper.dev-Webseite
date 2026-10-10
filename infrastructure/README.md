@@ -168,8 +168,11 @@ SWA token. An Azure administrator must first:
    configure required reviewers where supported. Configure these environment
    variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
    `TF_STATE_RESOURCE_GROUP`, `TF_STATE_STORAGE_ACCOUNT`, `TF_STATE_CONTAINER`,
-   `TF_STATE_KEY` (for example `website-production.tfstate`),
-   `AZURE_RESOURCE_GROUP_NAME`, and `AZURE_STATIC_WEB_APP_NAME`.
+   `TF_STATE_KEY` (for example `website-production.tfstate`).
+   `AZURE_RESOURCE_GROUP_NAME` and `AZURE_STATIC_WEB_APP_NAME` are optional
+   deployment overrides: both default to `bomkeeper-web`, matching the versioned
+   `infrastructure/terraform.tfvars`. If you change either Terraform resource
+   name, set the corresponding environment variable to the same value.
    Set `TF_STATE_RESOURCE_GROUP=bomkeeper-web` and `TF_STATE_STORAGE_ACCOUNT`
    to the name of your manually created account.
 5. Review and edit the versioned `infrastructure/terraform.tfvars`, then commit
