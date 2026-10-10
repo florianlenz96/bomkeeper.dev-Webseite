@@ -39,9 +39,9 @@ function audit(context, event, error) {
   });
 }
 
-async function formData(request, config) {
+async function formData(request, config, allowOpaqueOrigin = false) {
   const origin = request.headers.get("origin");
-  if (!origin || !config.allowedOrigins.includes(origin)) {
+  if (!origin || (!config.allowedOrigins.includes(origin) && !(allowOpaqueOrigin && origin === "null"))) {
     throw new RequestError(403, "Please submit this form from the Bomkeeper website.");
   }
   const contentType = request.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
@@ -116,7 +116,7 @@ export function createHandlers({ config, store, sendEmail, now = Date.now }) {
           recipients: { to: [{ address: email }] },
           content: {
             subject: "Confirm your Bomkeeper waitlist signup",
-            plainText: `Confirm that you want Bomkeeper early-access and product updates:\n\n${confirm}\n\nThis link expires in 48 hours. Open it and press Confirm signup. If you did not request this, ignore this email or delete the signup:\n${unsubscribe}\n\nBomkeeper - ${config.baseUrl}`,
+            plainText: `Confirm that you want Bomkeeper early-access and product updates:\n\n${confirm}\n\nThis link expires in 48 hours. Click it to confirm your signup immediately. If you did not request this, ignore this email or delete the signup:\n${unsubscribe}\n\nBomkeeper - ${config.baseUrl}`,
           },
         });
       } catch (error) {
@@ -133,15 +133,16 @@ export function createHandlers({ config, store, sendEmail, now = Date.now }) {
 
   function tokenHandler(purpose) {
     return guarded(async (request) => {
-      const form = request.method === "POST" ? await formData(request, config) : null;
+      // no-referrer pages can submit Origin: null; these actions still require a signed, purpose-bound token.
+      const form = request.method === "POST" ? await formData(request, config, true) : null;
       const token = form ? form.get("token") : new URL(request.url).searchParams.get("token");
       const timestamp = now();
       const payload = verifyToken(config.secret, token, purpose, timestamp);
       if (!payload) throw new RequestError(400, "This link is invalid or expired. Please return to the website to sign up again.");
-      if (request.method === "GET") {
-        const label = purpose === "confirm" ? "Confirm signup" : "Unsubscribe";
+      if (request.method === "GET" && purpose === "unsubscribe") {
+        const label = "Unsubscribe";
         return page(200, label,
-          purpose === "confirm" ? "Confirm that you want to receive Bomkeeper early-access and product updates." : "Remove your signup and stop receiving Bomkeeper waitlist updates.",
+          "Remove your signup and stop receiving Bomkeeper waitlist updates.",
           `<form method="post" action="/api/waitlist/${purpose}"><input type="hidden" name="token" value="${escape(token)}"><button type="submit">${label}</button></form>`);
       }
       if (purpose === "confirm") {

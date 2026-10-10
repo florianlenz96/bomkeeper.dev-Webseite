@@ -10,12 +10,19 @@ provider is needed.
    pending signup in private Table Storage and submits a confirmation email via
    Azure Communication Services.
 2. The email contains a signed confirmation link valid for 48 hours. Opening
-   the link displays a confirmation form; only its POST confirms the signup.
-   Email link scanners cannot confirm or unsubscribe with a GET request.
-3. `POST /api/waitlist/confirm` records confirmation time. Only records with
+   the link immediately confirms the signup, without a second button click.
+   Email link scanners that open the link can also confirm a signup.
+3. `GET /api/waitlist/confirm` records confirmation time. Existing POST links
+   remain supported. Only records with
    `status=confirmed` are eligible for future updates.
 4. The email and confirmation page include an unsubscribe link.
-   `POST /api/waitlist/unsubscribe` permanently deletes the record.
+   Opening it displays a form; only `POST /api/waitlist/unsubscribe` permanently
+   deletes the record. Email link scanners cannot unsubscribe with GET.
+
+Token-authenticated POST actions accept `Origin: null`, which browsers can send
+from the API pages with `Referrer-Policy: no-referrer`. They still validate the
+signed token and its purpose. Registration continues to require a configured
+website origin; missing and foreign origins are rejected for all POST actions.
 
 Signups are normalized by email and protected by optimistic concurrency.
 Confirmation emails have a per-address one-hour cooldown. Confirmed addresses

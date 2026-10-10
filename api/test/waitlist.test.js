@@ -80,13 +80,13 @@ function fixture(overrides = {}) {
     method === "GET" ? new Request(`${baseUrl}/api/waitlist/${purpose}?token=${value}`) :
       post(`/api/waitlist/${purpose}`, { token: value }), context,
   );
-  return { table, limits, store, emails, logs, context, post, register, token, action,
+  return { table, limits, store, emails, logs, context, handlers, post, register, token, action,
     advance: (milliseconds) => { time += milliseconds; },
     time: () => time,
   };
 }
 
-test("registration, explicit double opt in and unsubscribe lifecycle", async () => {
+test("registration, one-click double opt in and unsubscribe lifecycle", async () => {
   const f = fixture();
   assert.equal((await f.register({ email: " User@Example.com " })).status, 200);
   assert.equal(f.emails.length, 1);
@@ -97,18 +97,66 @@ test("registration, explicit double opt in and unsubscribe lifecycle", async () 
   assert.equal(record.designPartner, true);
   assert.equal(record.consentVersion, "waitlist-2026-10");
   assert.equal(record.rowKey, createHash("sha256").update(record.email).digest("hex"));
-  assert.equal((await f.action("confirm", f.token("confirm"), "GET")).status, 200);
-  assert.equal((await f.store.get(record.rowKey)).status, "pending", "email scanners must not confirm");
-  const confirmed = await f.action("confirm", f.token("confirm"));
+  assert.match(f.emails[0].content.plainText, /Click it to confirm your signup immediately/);
+  const confirmed = await f.action("confirm", f.token("confirm"), "GET");
   assert.equal(confirmed.status, 200);
   assert.match(confirmed.body, /You&#39;re on the list/);
+  assert.doesNotMatch(confirmed.body, /<form|<button/);
   assert.equal((await f.store.get(record.rowKey)).status, "confirmed");
+  assert.equal((await f.store.get(record.rowKey)).confirmedAt, new Date(f.time()).toISOString());
+  assert.equal((await f.action("confirm", f.token("confirm"), "GET")).status, 200, "GET confirmation is idempotent");
   assert.equal((await f.action("confirm", f.token("confirm"))).status, 200, "confirmation is idempotent");
   assert.equal((await f.action("unsubscribe", f.token("unsubscribe"), "GET")).status, 200);
   assert.equal(f.table.records.size, 1, "email scanners must not unsubscribe");
   assert.equal((await f.action("unsubscribe", f.token("unsubscribe"))).status, 200);
   assert.equal(f.table.records.size, 0);
   assert.equal((await f.action("unsubscribe", f.token("unsubscribe"))).status, 200);
+});
+
+test("token forms accept opaque origins but still require valid purpose-bound tokens", async () => {
+  const f = fixture();
+  await f.register();
+  const record = [...f.table.records.values()][0];
+  for (const purpose of ["confirm", "unsubscribe"]) {
+    for (const origin of ["", "https://evil.example"]) {
+      const response = await f.handlers[purpose](f.post(`/api/waitlist/${purpose}`,
+        { token: f.token(purpose) }, { origin }), f.context);
+      assert.equal(response.status, 403);
+    }
+    for (const token of ["", `${f.token(purpose)}x`, f.token(purpose === "confirm" ? "unsubscribe" : "confirm")]) {
+      const response = await f.handlers[purpose](f.post(`/api/waitlist/${purpose}`,
+        { token }, { origin: "null" }), f.context);
+      assert.equal(response.status, 400);
+    }
+  }
+  assert.equal((await f.store.get(record.rowKey)).status, "pending");
+  assert.equal((await f.handlers.confirm(f.post("/api/waitlist/confirm",
+    { token: f.token("confirm") }, { origin: "null" }), f.context)).status, 200);
+  assert.equal((await f.store.get(record.rowKey)).status, "confirmed");
+  assert.equal((await f.handlers.unsubscribe(f.post("/api/waitlist/unsubscribe",
+    { token: f.token("unsubscribe") }, { origin: "null" }), f.context)).status, 200);
+  assert.equal(f.table.records.size, 0);
+  assert.equal((await f.register({}, { origin: "null" })).status, 403);
+});
+
+test("invalid, missing and wrong-purpose confirmation links cannot confirm", async () => {
+  const f = fixture();
+  await f.register();
+  for (const token of ["", `${f.token("confirm")}x`, f.token("unsubscribe")]) {
+    assert.equal((await f.action("confirm", token, "GET")).status, 400);
+  }
+  assert.equal((await f.handlers.confirm(new Request(`${baseUrl}/api/waitlist/confirm`), f.context)).status, 400);
+  assert.equal([...f.table.records.values()][0].status, "pending");
+});
+
+test("one-click confirmation reports storage failures instead of success", async () => {
+  const f = fixture();
+  await f.register();
+  f.table.updateEntity = async () => { throw Object.assign(new Error("storage unavailable"), { statusCode: 503 }); };
+  const response = await f.action("confirm", f.token("confirm"), "GET");
+  assert.equal(response.status, 503);
+  assert.doesNotMatch(response.body, /Your email address is confirmed/);
+  assert.equal([...f.table.records.values()][0].status, "pending");
 });
 
 test("duplicates and concurrent signups send only one email", async () => {
@@ -133,9 +181,11 @@ test("cooldown, replacement and expiration prevent replay", async () => {
   await f.register();
   assert.equal(f.emails.length, 2);
   assert.equal((await f.action("confirm", oldConfirm)).status, 400);
+  assert.equal((await f.action("confirm", oldConfirm, "GET")).status, 400);
   assert.equal((await f.action("unsubscribe", oldUnsubscribe)).status, 400);
   f.advance(48 * 3_600_000);
   assert.equal((await f.action("confirm", f.token("confirm"))).status, 400);
+  assert.equal((await f.action("confirm", f.token("confirm"), "GET")).status, 400);
 });
 
 test("validate consent, email, company, product type and checkbox values", async () => {
