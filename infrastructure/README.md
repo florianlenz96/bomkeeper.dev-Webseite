@@ -5,6 +5,8 @@ This folder manages infrastructure only:
 - Existing Azure Resource Group `bomkeeper-web`, automatically imported
 - Existing manually created state Storage Account in `bomkeeper-web`, not managed by this configuration
 - Azure Static Web App `bomkeeper-web` (Free tier), new or imported
+- Workspace-based Application Insights for the managed API, backed by a
+  Log Analytics workspace with 30-day retention
 - Optional SWA custom domains, enabled after DNS is ready:
   - `bomkeeper.dev` (apex)
   - `www.bomkeeper.dev`
@@ -27,6 +29,7 @@ code to that exact Static Web App and checks the public website and API.
 
 The Static Web App app settings are managed with:
 
+- `APPLICATIONINSIGHTS_CONNECTION_STRING` = Application Insights connection string (server-side API telemetry only)
 - `WAITLIST_STORAGE_CONNECTION_STRING` = Storage primary connection string
 - `WAITLIST_TABLE` = `Waitlist`
 - `WAITLIST_LIMITS_TABLE` = `WaitlistLimits`
@@ -57,6 +60,8 @@ Remove the obsolete `static_web_app_default_hostname` input from old variable fi
   - `Microsoft.Web/staticSites`
   - `Microsoft.Storage/storageAccounts`
   - `Microsoft.Communication/*`
+  - `Microsoft.Insights/components`
+  - `Microsoft.OperationalInsights/workspaces`
 - External DNS provider access (United Domains) for email DNS records
 
 ---
@@ -163,7 +168,8 @@ SWA token. An Azure administrator must first:
 3. Grant the identity Contributor on the existing `bomkeeper-web` resource group;
    subscription-wide Contributor is not needed. Grant Storage Blob Data Contributor
    on the state storage account for backend access. Do not grant Owner.
-   Register Microsoft.Web, Microsoft.Storage and Microsoft.Communication.
+   Register Microsoft.Web, Microsoft.Storage, Microsoft.Communication,
+   Microsoft.Insights and Microsoft.OperationalInsights.
 4. Create the GitHub `production` environment, restrict it to `main`, and
    configure required reviewers where supported. Configure these environment
    variables: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`,
@@ -355,6 +361,36 @@ terraform plan
 ```
 
 `.terraform.lock.hcl` is intentionally kept in version control.
+
+## Managed API diagnostics (no ClickOps)
+
+The normal Terraform apply creates `${static_web_app_name}-insights` and
+`${static_web_app_name}-logs` in the website resource group and connects the
+managed Functions API through the existing AzAPI app-settings action. No portal
+activation, frontend SDK or additional Function App is required.
+
+After deployment, reproduce the failed waitlist request. Telemetry can take a
+few minutes to arrive; errors from before activation are not backfilled.
+From `infrastructure/`, query the linked resource using Azure CLI:
+
+```bash
+az extension add --name application-insights
+az monitor app-insights query \
+  --app "$(terraform output -raw application_insights_id)" \
+  --analytics-query "traces | where timestamp > ago(1h) | where message contains 'waitlist.operation_failed' or message contains 'waitlist.configuration_failed' or message contains 'waitlist.claim_release_failed' | project timestamp, message, customDimensions | order by timestamp desc" \
+  --output json
+```
+
+The existing API logs failure metadata rather than email addresses, credentials
+or raw exception messages. Inspect `code`, `status` and `invocationId` where
+present; configuration failures report `errorType`. Application Insights also
+collects automatic request telemetry, which may contain URLs with bearer tokens.
+Treat telemetry as sensitive, restrict access using Azure RBAC and redact tokens
+before sharing logs. The querying identity needs monitoring/log read access.
+
+Log Analytics uses the usage-billed `PerGB2018` SKU with 30-day retention;
+Application Insights/Log Analytics can incur ingestion costs. Set and monitor
+an Azure budget. This enables diagnosis, not a fix for storage or email failures.
 
 ## State, credentials and operations
 

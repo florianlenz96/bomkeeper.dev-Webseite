@@ -12,15 +12,16 @@ locals {
   )
 
   static_web_app_settings = {
-    WAITLIST_STORAGE_CONNECTION_STRING = azurerm_storage_account.waitlist.primary_connection_string
-    WAITLIST_TABLE                     = var.waitlist_table_name
-    WAITLIST_LIMITS_TABLE              = var.waitlist_limits_table_name
-    WAITLIST_EMAIL_CONNECTION_STRING   = azurerm_communication_service.acs.primary_connection_string
-    WAITLIST_SENDER                    = local.waitlist_sender_email
-    WAITLIST_BASE_URL                  = var.waitlist_base_url
-    WAITLIST_EMAIL_ENABLED             = var.email_domain_verified ? "true" : "false"
-    WAITLIST_TOKEN_SECRET              = random_password.waitlist_token_secret.result
-    WAITLIST_HOURLY_EMAIL_LIMIT        = tostring(var.waitlist_hourly_email_limit)
-    WAITLIST_ALLOWED_ORIGINS           = local.waitlist_allowed_origins
+    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.api.connection_string
+    WAITLIST_STORAGE_CONNECTION_STRING    = azurerm_storage_account.waitlist.primary_connection_string
+    WAITLIST_TABLE                        = var.waitlist_table_name
+    WAITLIST_LIMITS_TABLE                 = var.waitlist_limits_table_name
+    WAITLIST_EMAIL_CONNECTION_STRING      = azurerm_communication_service.acs.primary_connection_string
+    WAITLIST_SENDER                       = local.waitlist_sender_email
+    WAITLIST_BASE_URL                     = var.waitlist_base_url
+    WAITLIST_EMAIL_ENABLED                = var.email_domain_verified ? "true" : "false"
+    WAITLIST_TOKEN_SECRET                 = random_password.waitlist_token_secret.result
+    WAITLIST_HOURLY_EMAIL_LIMIT           = tostring(var.waitlist_hourly_email_limit)
+    WAITLIST_ALLOWED_ORIGINS              = local.waitlist_allowed_origins
   }
 }
